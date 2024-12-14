@@ -6,39 +6,25 @@ import Service.PacienteService;
 import Service.PacienteServiceImpl;
 import Service.ServiceException;
 
-import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import java.awt.*;
+import javax.swing.*;
 import java.sql.Connection;
 
-public class PacientePanelManager {
-    private MainMenuUI mainMenuUI;
-    private JPanel mainPanel;
-    private JPanel contentPanel;
-    private CardLayout cardLayout;
-    private JTable table;
-    private DefaultTableModel tableModel;
+public class PacientePanelManager extends AbstractPanelManager {
     private PacienteService pacienteService;
-    private Connection conexion;
-
     private AgregarPacienteUI agregarPacienteUI;
     private ModificarPacienteUI modificarPacienteUI;
     private EliminarPacienteUI eliminarPacienteUI;
 
     public PacientePanelManager(MainMenuUI mainMenuUI, Connection conexion) {
-        this.mainMenuUI = mainMenuUI;
-        this.conexion = conexion;
-        PacienteDAOImpl pacienteDAO = new PacienteDAOImpl(conexion);
-        pacienteService = new PacienteServiceImpl(pacienteDAO);
-        initComponents();
+        super(mainMenuUI, conexion);
     }
 
-    private void initComponents() {
-        cardLayout = new CardLayout();
-        contentPanel = new JPanel(cardLayout);
-        JPanel tablePanel = new JPanel(new BorderLayout());
-
-        // Crear tabla dinámica
+    @Override
+    protected void initDAO() {
+        PacienteDAOImpl pacienteDAO = new PacienteDAOImpl(conexion);
+        pacienteService = new PacienteServiceImpl(pacienteDAO);
+        
         tableModel = new DefaultTableModel(
             new Object[]{"ID", "Nombre y Apellido", "DNI", "Teléfono", "Email", "Obra Social"}, 
             0
@@ -48,99 +34,62 @@ public class PacientePanelManager {
                 return false;
             }
         };
-        table = new JTable(tableModel);
-        table.getSelectionModel().addListSelectionListener(e -> actualizarFormulariosConSeleccion());
-        JScrollPane scrollPane = new JScrollPane(table);
-        tablePanel.add(scrollPane, BorderLayout.CENTER);
+    }
 
-        // Panel principal con botones
-        mainPanel = new JPanel(new BorderLayout());
-        JPanel buttonPanel = new JPanel();
-        JButton agregarButton = new JButton("Agregar Paciente");
-        JButton modificarButton = new JButton("Modificar Paciente");
-        JButton eliminarButton = new JButton("Eliminar Paciente");
-        JButton buscarPorEmailButton = new JButton("Buscar por Email");
-        JButton volverButton = new JButton("Volver al Menú Principal");
-
-        agregarButton.addActionListener(e -> mostrarPanel("agregarPaciente"));
-        modificarButton.addActionListener(e -> mostrarPanel("modificarPaciente"));
-        eliminarButton.addActionListener(e -> mostrarPanel("eliminarPaciente"));
-        buscarPorEmailButton.addActionListener(e -> buscarPorEmail());
-        volverButton.addActionListener(e -> volverAlMenuPrincipal());
-
-        buttonPanel.add(agregarButton);
-        buttonPanel.add(modificarButton);
-        buttonPanel.add(eliminarButton);
-        buttonPanel.add(buscarPorEmailButton);
-        buttonPanel.add(volverButton);
-
-        mainPanel.add(buttonPanel, BorderLayout.NORTH);
-        mainPanel.add(tablePanel, BorderLayout.CENTER);
-
-        // Agregar pantallas al contentPanel
-        contentPanel.add(mainPanel, "mainPanel");
-
-        // Inicializar los formularios
+    @Override
+    protected void initUIComponents() {
         agregarPacienteUI = new AgregarPacienteUI(pacienteService, this);
         modificarPacienteUI = new ModificarPacienteUI(pacienteService, this);
         eliminarPacienteUI = new EliminarPacienteUI(this, pacienteService);
 
-        contentPanel.add(agregarPacienteUI, "agregarPaciente");
-        contentPanel.add(modificarPacienteUI, "modificarPaciente");
-        contentPanel.add(eliminarPacienteUI, "eliminarPaciente");
-
-        mostrarPanel("mainPanel");
-        actualizarTabla();
+        contentPanel.add(mainPanel, "mainPanel");
+        contentPanel.add(agregarPacienteUI, "agregar");
+        contentPanel.add(modificarPacienteUI, "modificar");
+        contentPanel.add(eliminarPacienteUI, "eliminar");
     }
 
-    private void buscarPorEmail() {
-        String email = JOptionPane.showInputDialog(mainPanel, "Ingrese el email del médico:");
+    @Override
+    protected void actualizarTabla() throws ServiceException {
+        tableModel.setRowCount(0);
+        for (Paciente paciente : pacienteService.obtenerTodos()) {
+            tableModel.addRow(new Object[]{
+                paciente.getId(),
+                paciente.getNombreYApellido(),
+                paciente.getDni(),
+                paciente.getTelefono(),
+                paciente.getEmail(),
+                paciente.getObraSocial()
+            });
+        }
+    }
+
+    @Override
+    protected void buscarPorEmail() {
+        String email = JOptionPane.showInputDialog(null, "Ingrese el email del paciente:");
         if (email != null && !email.trim().isEmpty()) {
             try {
                 Paciente paciente = pacienteService.buscarPorEmail(email);
                 if (paciente != null) {
                     tableModel.setRowCount(0);
                     tableModel.addRow(new Object[]{
-                            paciente.getId(),
-                            paciente.getNombreYApellido(),
-                            paciente.getDni(),
-                            paciente.getTelefono(),
-                            paciente.getEmail(),
-                            paciente.getObraSocial()
-                    });
-                } else {
-                    JOptionPane.showMessageDialog(mainPanel, "No se encontró ningún médico con ese email");
-                }
-            } catch (ServiceException e) {
-                JOptionPane.showMessageDialog(mainPanel, "Error al buscar médico: " + e.getMessage());
-            }
-        }
-    }
-
-    public void mostrarPanel(String nombrePanel) {
-        cardLayout.show(contentPanel, nombrePanel);
-        actualizarTabla();
-    }
-
-    public void actualizarTabla() {
-        try {
-            tableModel.setRowCount(0);
-            for (Paciente paciente : pacienteService.obtenerTodos()) {
-                tableModel.addRow(new Object[]{
                         paciente.getId(),
                         paciente.getNombreYApellido(),
                         paciente.getDni(),
                         paciente.getTelefono(),
                         paciente.getEmail(),
                         paciente.getObraSocial()
-                });
+                    });
+                } else {
+                    JOptionPane.showMessageDialog(null, "No se encontró ningún paciente con ese email");
+                }
+            } catch (ServiceException e) {
+                JOptionPane.showMessageDialog(null, "Error al buscar paciente: " + e.getMessage());
             }
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Error obteniendo pacientes: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    private void actualizarFormulariosConSeleccion() {
+    @Override
+    protected void actualizarFormulariosConSeleccion() {
         int selectedRow = table.getSelectedRow();
         if (selectedRow != -1) {
             int id = (int) tableModel.getValueAt(selectedRow, 0);
@@ -150,18 +99,9 @@ public class PacientePanelManager {
             String email = (String) tableModel.getValueAt(selectedRow, 4);
             String obraSocial = (String) tableModel.getValueAt(selectedRow, 5);
 
-            // Actualizar los formularios con los datos seleccionados
             agregarPacienteUI.setFormData(id, nombreApellido, dni, telefono, email, obraSocial);
             modificarPacienteUI.setFormData(id, nombreApellido, dni, telefono, email, obraSocial);
             eliminarPacienteUI.setFormData(id, nombreApellido, dni, telefono, email, obraSocial);
         }
-    }
-
-    private void volverAlMenuPrincipal() {
-        mainMenuUI.mostrarMenuPrincipal();
-    }
-
-    public JPanel getMainPanel() {
-        return contentPanel;
     }
 }

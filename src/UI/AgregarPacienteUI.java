@@ -5,83 +5,100 @@ import Service.PacienteService;
 import Service.ServiceException;
 
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
+import java.awt.*;
 
-public class AgregarPacienteUI extends AbstractPanel<Paciente> {
-    private final PacienteService pacienteService;
-    private final PacientePanelManager pacientePanelManager;
-    private DefaultTableModel tableModel;
-
-    public AgregarPacienteUI(PacienteService pacienteService, PacientePanelManager pacientePanelManager) {
+public class AgregarPacienteUI extends JPanel {
+    private PacienteService pacienteService;
+    private PacientePanelManager panelManager;
+    
+    private JTextField nombreField;
+    private JTextField dniField;
+    private JTextField telefonoField;
+    private JTextField emailField;
+    private JTextField obraSocialField;
+    
+    public AgregarPacienteUI(PacienteService pacienteService, PacientePanelManager panelManager) {
         this.pacienteService = pacienteService;
-        this.pacientePanelManager = pacientePanelManager;
+        this.panelManager = panelManager;
         initComponents();
-        setUpLayout();
     }
-
-    @Override
-    protected void armarFormulario(JPanel formPanel) {
+    
+    private void initComponents() {
+        setLayout(new BorderLayout());
+        
+        // Panel para el formulario
+        JPanel formPanel = new JPanel(new GridLayout(6, 2, 5, 5));
+        formPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        
         formPanel.add(new JLabel("Nombre y Apellido:"));
-        formPanel.add(nombreYApellidoField);
+        nombreField = new JTextField();
+        formPanel.add(nombreField);
+        
         formPanel.add(new JLabel("DNI:"));
+        dniField = new JTextField();
         formPanel.add(dniField);
+        
         formPanel.add(new JLabel("Teléfono:"));
+        telefonoField = new JTextField();
         formPanel.add(telefonoField);
+        
         formPanel.add(new JLabel("Email:"));
+        emailField = new JTextField();
         formPanel.add(emailField);
+        
         formPanel.add(new JLabel("Obra Social:"));
+        obraSocialField = new JTextField();
         formPanel.add(obraSocialField);
+        
+        // Panel para botones
+        JPanel buttonPanel = new JPanel();
+        JButton guardarButton = new JButton("Guardar");
+        JButton cancelarButton = new JButton("Cancelar");
+        
+        guardarButton.addActionListener(e -> guardarPaciente());
+        cancelarButton.addActionListener(e -> panelManager.mostrarPanel("mainPanel"));
+        
+        buttonPanel.add(guardarButton);
+        buttonPanel.add(cancelarButton);
+        
+        add(formPanel, BorderLayout.CENTER);
+        add(buttonPanel, BorderLayout.SOUTH);
     }
-
-    @Override
-    protected void agregarItem() {
-        Paciente paciente = new Paciente();
-        paciente.setNombreYApellido(nombreYApellidoField.getText());
-        paciente.setDni(dniField.getText());
-        paciente.setTelefono(telefonoField.getText());
-        paciente.setEmail(emailField.getText());
-        paciente.setObraSocial(obraSocialField.getText());
-
+    
+    private void guardarPaciente() {
         try {
+            Paciente paciente = new Paciente(
+                0,
+                nombreField.getText(),
+                dniField.getText(),
+                telefonoField.getText(),
+                emailField.getText(),
+                obraSocialField.getText()
+            );
+            
             pacienteService.agregarPaciente(paciente);
-            pacientePanelManager.actualizarTabla();
-            clearForm();
+            JOptionPane.showMessageDialog(this, "Paciente agregado exitosamente");
+            limpiarCampos();
+            panelManager.mostrarPanel("mainPanel");
         } catch (ServiceException e) {
-            JOptionPane.showMessageDialog(this, "Error agregando paciente: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Error al agregar paciente: " + e.getMessage());
         }
     }
-
-    @Override
-    protected void modificarItem() {
-        // No necesario en este panel
-    }
-
-    @Override
-    protected void eliminarItem() {
-        // No necesario en este panel
-    }
-
-    @Override
-    protected void actualizarTabla() {
-        pacientePanelManager.actualizarTabla();
-    }
-
-    @Override
-    protected void clearForm() {
-        nombreYApellidoField.setText("");
+    
+    private void limpiarCampos() {
+        nombreField.setText("");
         dniField.setText("");
         telefonoField.setText("");
         emailField.setText("");
         obraSocialField.setText("");
     }
-
-    @Override
-    public void setFormData(int id, String nombreApellido, String dni, String telefono, String email, String obraSocial) {
+    
+    public void setFormData(int id, String nombre, String dni, String telefono, String email, 
+                          String obraSocial) {
+        nombreField.setText(nombre);
+        dniField.setText(dni);
+        telefonoField.setText(telefono);
+        emailField.setText(email);
+        obraSocialField.setText(obraSocial);
     }
-
-    @Override
-    protected void volver() {
-        pacientePanelManager.mostrarPanel("mainPanel");
-    }
-
 }
