@@ -12,9 +12,10 @@ import java.awt.*;
 import java.sql.Connection;
 
 public class MedicoPanelManager {
-    private JFrame mainFrame;
-    private CardLayout cardLayout;
+    private MainMenuUI mainMenuUI;
+    private JPanel mainPanel;
     private JPanel contentPanel;
+    private CardLayout cardLayout;
     private JTable table;
     private DefaultTableModel tableModel;
     private MedicoService medicoService;
@@ -24,13 +25,8 @@ public class MedicoPanelManager {
     private ModificarMedicoUI modificarMedicoUI;
     private EliminarMedicoUI eliminarMedicoUI;
 
-    private JPanel mainPanel;
-    private JButton agregarButton;
-    private JButton modificarButton;
-    private JButton eliminarButton;
-    protected JButton buscarPorEmailButton;
-
-    public MedicoPanelManager(JFrame mainFrame, Connection conexion) {
+    public MedicoPanelManager(MainMenuUI mainMenuUI, Connection conexion) {
+        this.mainMenuUI = mainMenuUI;
         this.conexion = conexion;
         MedicoDAOImpl medicoDAO = new MedicoDAOImpl(conexion);
         medicoService = new MedicoServiceImpl(medicoDAO);
@@ -38,8 +34,6 @@ public class MedicoPanelManager {
     }
 
     private void initComponents() {
-        mainFrame = new JFrame("Gestión de Médicos");
-        mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         cardLayout = new CardLayout();
         contentPanel = new JPanel(cardLayout);
         JPanel tablePanel = new JPanel(new BorderLayout());
@@ -62,20 +56,23 @@ public class MedicoPanelManager {
         // Panel principal con botones
         mainPanel = new JPanel(new BorderLayout());
         JPanel buttonPanel = new JPanel();
-        agregarButton = new JButton("Agregar Médico");
-        modificarButton = new JButton("Modificar Médico");
-        eliminarButton = new JButton("Eliminar Médico");
-        buscarPorEmailButton = new JButton("Buscar por Email");
+        JButton agregarButton = new JButton("Agregar Médico");
+        JButton modificarButton = new JButton("Modificar Médico");
+        JButton eliminarButton = new JButton("Eliminar Médico");
+        JButton buscarPorEmailButton = new JButton("Buscar por Email");
+        JButton volverButton = new JButton("Volver al Menú Principal");
 
         agregarButton.addActionListener(e -> mostrarPanel("agregarMedico"));
         modificarButton.addActionListener(e -> mostrarPanel("modificarMedico"));
         eliminarButton.addActionListener(e -> mostrarPanel("eliminarMedico"));
         buscarPorEmailButton.addActionListener(e -> buscarPorEmail());
+        volverButton.addActionListener(e -> volverAlMenuPrincipal());
 
         buttonPanel.add(agregarButton);
         buttonPanel.add(modificarButton);
         buttonPanel.add(eliminarButton);
         buttonPanel.add(buscarPorEmailButton);
+        buttonPanel.add(volverButton);
 
         mainPanel.add(buttonPanel, BorderLayout.NORTH);
         mainPanel.add(tablePanel, BorderLayout.CENTER);
@@ -92,17 +89,12 @@ public class MedicoPanelManager {
         contentPanel.add(modificarMedicoUI, "modificarMedico");
         contentPanel.add(eliminarMedicoUI, "eliminarMedico");
 
-        mainFrame.add(contentPanel);
-        mainFrame.pack();
-        mainFrame.setLocationRelativeTo(null);
-        mainFrame.setVisible(true);
-
         mostrarPanel("mainPanel");
         actualizarTabla();
     }
 
     private void buscarPorEmail() {
-        String email = JOptionPane.showInputDialog(mainFrame, "Ingrese el email del médico:");
+        String email = JOptionPane.showInputDialog(mainPanel, "Ingrese el email del médico:");
         if (email != null && !email.trim().isEmpty()) {
             try {
                 Medico medico = medicoService.buscarPorEmail(email);
@@ -118,10 +110,10 @@ public class MedicoPanelManager {
                         medico.getMatricula()
                     });
                 } else {
-                    JOptionPane.showMessageDialog(mainFrame, "No se encontró ningún médico con ese email");
+                    JOptionPane.showMessageDialog(mainPanel, "No se encontró ningún médico con ese email");
                 }
             } catch (ServiceException e) {
-                JOptionPane.showMessageDialog(mainFrame, "Error al buscar médico: " + e.getMessage());
+                JOptionPane.showMessageDialog(mainPanel, "Error al buscar médico: " + e.getMessage());
             }
         }
     }
@@ -148,7 +140,7 @@ public class MedicoPanelManager {
                 });
             }
         } catch (ServiceException e) {
-            JOptionPane.showMessageDialog(mainFrame, "Error al obtener médicos: " + e.getMessage());
+            JOptionPane.showMessageDialog(mainPanel, "Error al obtener médicos: " + e.getMessage());
         }
     }
 
@@ -167,5 +159,13 @@ public class MedicoPanelManager {
             modificarMedicoUI.setFormData(id, nombreApellido, dni, telefono, email, especialidad, matricula);
             eliminarMedicoUI.setFormData(id, nombreApellido, dni, telefono, email, especialidad, matricula);
         }
+    }
+
+    private void volverAlMenuPrincipal() {
+        mainMenuUI.mostrarMenuPrincipal();
+    }
+
+    public JPanel getMainPanel() {
+        return contentPanel;
     }
 }

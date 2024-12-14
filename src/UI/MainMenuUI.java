@@ -9,6 +9,8 @@ import java.sql.SQLException;
 public class MainMenuUI {
     private JFrame mainFrame;
     private Connection conexion;
+    private JPanel contentPanel;
+    private CardLayout cardLayout;
 
     public MainMenuUI() {
         initConnection();
@@ -30,8 +32,10 @@ public class MainMenuUI {
     private void initComponents() {
         mainFrame = new JFrame("Sistema de Gestión Médica");
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        mainFrame.setSize(400, 300);
-        mainFrame.setLocationRelativeTo(null);
+        mainFrame.setSize(800, 600);
+
+        cardLayout = new CardLayout();
+        contentPanel = new JPanel(cardLayout);
 
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new GridBagLayout());
@@ -69,18 +73,25 @@ public class MainMenuUI {
         gbc.gridy = 3;
         mainPanel.add(salirButton, gbc);
 
-        mainFrame.add(mainPanel);
+        contentPanel.add(mainPanel, "menu");
+        mainFrame.add(contentPanel);
         mainFrame.setVisible(true);
     }
 
     private void abrirGestionPacientes() {
-        //mainFrame.setVisible(false);
-        SwingUtilities.invokeLater(() -> new PacientePanelManager(mainFrame, conexion));
+        SwingUtilities.invokeLater(() -> {
+            PacientePanelManager pacientePanel = new PacientePanelManager(this, conexion);
+            contentPanel.add(pacientePanel.getMainPanel(), "pacientes");
+            cardLayout.show(contentPanel, "pacientes");
+        });
     }
 
     private void abrirGestionMedicos() {
-        mainFrame.setVisible(false);
-        SwingUtilities.invokeLater(() -> new MedicoPanelManager(mainFrame, conexion));
+        SwingUtilities.invokeLater(() -> {
+            MedicoPanelManager medicoPanel = new MedicoPanelManager(this, conexion);
+            contentPanel.add(medicoPanel.getMainPanel(), "medicos");
+            cardLayout.show(contentPanel, "medicos");
+        });
     }
 
     private void cerrarAplicacion() {
@@ -93,6 +104,10 @@ public class MainMenuUI {
         }
         mainFrame.dispose();
         System.exit(0);
+    }
+
+    public void mostrarMenuPrincipal() {
+        cardLayout.show(contentPanel, "menu");
     }
 
     public static void main(String[] args) {
