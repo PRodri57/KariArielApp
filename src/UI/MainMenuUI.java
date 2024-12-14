@@ -17,7 +17,7 @@ public class MainMenuUI {
 
     private void initConnection() {
         try {
-            conexion = DriverManager.getConnection("jdbc:h2:~/TurneraMedica", "sa", "");
+            conexion = DriverManager.getConnection("jdbc:h2:C:\\Users\\BashDeep\\OneDrive - Universidad de Palermo\\Universidad\\3° Cuatrimestre\\LABORATORIO I (Final pendiente)\\TPLabJavaGithub\\TPFinalLabJavaGithub\\database\\TurneraMedica", "sa", "");
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, 
                 "Error de conexión a la base de datos: " + e.getMessage(), 
@@ -74,7 +74,7 @@ public class MainMenuUI {
     }
 
     private void abrirGestionPacientes() {
-        mainFrame.setVisible(false);
+        //mainFrame.setVisible(false);
         SwingUtilities.invokeLater(() -> new PacientePanelManager(mainFrame, conexion));
     }
 

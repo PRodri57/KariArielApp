@@ -39,7 +39,7 @@ public class MedicoPanelManager {
 
     private void initComponents() {
         mainFrame = new JFrame("Gestión de Médicos");
-        mainFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         cardLayout = new CardLayout();
         contentPanel = new JPanel(cardLayout);
         JPanel tablePanel = new JPanel(new BorderLayout());
