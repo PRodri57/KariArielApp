@@ -5,6 +5,10 @@ import java.awt.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import DAO.MedicoDAOImpl;
+import DAO.PacienteDAOImpl;
+import Service.MedicoServiceImpl;
+import Service.PacienteServiceImpl;
 
 public class MainMenuUI {
     private JFrame mainFrame;
@@ -66,11 +70,17 @@ public class MainMenuUI {
         gbc.gridy = 2;
         mainPanel.add(gestionMedicosButton, gbc);
 
+        JButton gestionTurnosButton = new JButton("Gestión de Turnos");
+        gestionTurnosButton.setFont(new Font("Arial", Font.PLAIN, 16));
+        gestionTurnosButton.addActionListener(e -> abrirGestionTurnos());
+        gbc.gridy = 3;
+        mainPanel.add(gestionTurnosButton, gbc);
+
         // Botón de salir
         JButton salirButton = new JButton("Salir");
         salirButton.setFont(new Font("Arial", Font.PLAIN, 16));
         salirButton.addActionListener(e -> cerrarAplicacion());
-        gbc.gridy = 3;
+        gbc.gridy = 4;
         mainPanel.add(salirButton, gbc);
 
         contentPanel.add(mainPanel, "menu");
@@ -91,6 +101,16 @@ public class MainMenuUI {
             MedicoPanelManager medicoPanel = new MedicoPanelManager(this, conexion);
             contentPanel.add(medicoPanel.getMainPanel(), "medicos");
             cardLayout.show(contentPanel, "medicos");
+        });
+    }
+
+    private void abrirGestionTurnos() {
+        SwingUtilities.invokeLater(() -> {
+            TurnoPanelManager turnoPanel = new TurnoPanelManager(this, conexion, 
+                new MedicoServiceImpl(new MedicoDAOImpl(conexion)),
+                new PacienteServiceImpl(new PacienteDAOImpl(conexion)));
+            contentPanel.add(turnoPanel.getMainPanel(), "turnos");
+            cardLayout.show(contentPanel, "turnos");
         });
     }
 

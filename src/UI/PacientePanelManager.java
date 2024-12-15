@@ -18,6 +18,7 @@ public class PacientePanelManager extends AbstractPanelManager {
 
     public PacientePanelManager(MainMenuUI mainMenuUI, Connection conexion) {
         super(mainMenuUI, conexion);
+        init();
     }
 
     @Override

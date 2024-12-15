@@ -1,6 +1,5 @@
 package UI;
 
-import Model.Paciente;
 import Service.PacienteService;
 import Service.ServiceException;
 

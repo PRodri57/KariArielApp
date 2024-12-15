@@ -18,6 +18,7 @@ public class MedicoPanelManager extends AbstractPanelManager {
 
     public MedicoPanelManager(MainMenuUI mainMenuUI, Connection conexion) {
         super(mainMenuUI, conexion);
+        init();
     }
 
     @Override

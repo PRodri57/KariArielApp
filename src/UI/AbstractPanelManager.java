@@ -5,6 +5,9 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.sql.Connection;
+import Service.TurnoService;
+import Service.TurnoServiceImpl;
+import DAO.TurnoDAOImpl;
 
 public abstract class AbstractPanelManager {
     protected MainMenuUI mainMenuUI;
@@ -20,6 +23,9 @@ public abstract class AbstractPanelManager {
         this.conexion = conexion;
         cardLayout = new CardLayout();
         contentPanel = new JPanel(cardLayout);
+    }
+
+    protected void init() {
         initDAO();
         initComponents();
         initUIComponents();
@@ -43,6 +49,7 @@ public abstract class AbstractPanelManager {
         JButton eliminarButton = new JButton("Eliminar");
         JButton buscarButton = new JButton("Buscar por Email");
         JButton volverButton = new JButton("Volver al Menú");
+        JButton consultarTurnosButton = new JButton("Consultar Turnos");
         
         agregarButton.addActionListener(e -> mostrarPanel("agregar"));
         modificarButton.addActionListener(e -> {
@@ -61,12 +68,14 @@ public abstract class AbstractPanelManager {
         });
         buscarButton.addActionListener(e -> buscarPorEmail());
         volverButton.addActionListener(e -> volverAlMenuPrincipal());
+        consultarTurnosButton.addActionListener(e -> consultarTurnos());
         
         buttonPanel.add(agregarButton);
         buttonPanel.add(modificarButton);
         buttonPanel.add(eliminarButton);
         buttonPanel.add(buscarButton);
         buttonPanel.add(volverButton);
+        buttonPanel.add(consultarTurnosButton);
         
         mainPanel.add(buttonPanel, BorderLayout.NORTH);
         
@@ -105,4 +114,16 @@ public abstract class AbstractPanelManager {
     protected abstract void actualizarTabla() throws ServiceException;
     protected abstract void buscarPorEmail();
     protected abstract void actualizarFormulariosConSeleccion();
+
+    protected void consultarTurnos() {
+        if (table.getSelectedRow() != -1) {
+            int id = (int) tableModel.getValueAt(table.getSelectedRow(), 0);
+            TurnoService turnoService = new TurnoServiceImpl(new TurnoDAOImpl(conexion));
+            ConsultarTurnosUI consultarTurnosUI = new ConsultarTurnosUI(turnoService, id);
+            contentPanel.add(consultarTurnosUI, "consultarTurnos");
+            mostrarPanel("consultarTurnos");
+        } else {
+            JOptionPane.showMessageDialog(null, "Por favor, seleccione una fila para consultar turnos");
+        }
+    }
 }

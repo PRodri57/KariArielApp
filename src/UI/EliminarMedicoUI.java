@@ -1,6 +1,5 @@
 package UI;
 
-import Model.Medico;
 import Service.MedicoService;
 import Service.ServiceException;
 
