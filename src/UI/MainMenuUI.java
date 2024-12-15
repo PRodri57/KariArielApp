@@ -7,8 +7,11 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import DAO.MedicoDAOImpl;
 import DAO.PacienteDAOImpl;
+import DAO.TurnoDAOImpl;
 import Service.MedicoServiceImpl;
 import Service.PacienteServiceImpl;
+import Service.TurnoService;
+import Service.TurnoServiceImpl;
 
 public class MainMenuUI {
     private JFrame mainFrame;
@@ -76,11 +79,17 @@ public class MainMenuUI {
         gbc.gridy = 3;
         mainPanel.add(gestionTurnosButton, gbc);
 
+        JButton calendarioButton = new JButton("Calendario de Turnos");
+        calendarioButton.setFont(new Font("Arial", Font.PLAIN, 16));
+        calendarioButton.addActionListener(e -> abrirCalendario());
+        gbc.gridy = 4;
+        mainPanel.add(calendarioButton, gbc);
+
         // Botón de salir
         JButton salirButton = new JButton("Salir");
         salirButton.setFont(new Font("Arial", Font.PLAIN, 16));
         salirButton.addActionListener(e -> cerrarAplicacion());
-        gbc.gridy = 4;
+        gbc.gridy = 5;
         mainPanel.add(salirButton, gbc);
 
         contentPanel.add(mainPanel, "menu");
@@ -111,6 +120,15 @@ public class MainMenuUI {
                 new PacienteServiceImpl(new PacienteDAOImpl(conexion)));
             contentPanel.add(turnoPanel.getMainPanel(), "turnos");
             cardLayout.show(contentPanel, "turnos");
+        });
+    }
+
+    private void abrirCalendario() {
+        SwingUtilities.invokeLater(() -> {
+            TurnoService turnoService = new TurnoServiceImpl(new TurnoDAOImpl(conexion));
+            CalendarioTurnosUI calendarioUI = new CalendarioTurnosUI(turnoService);
+            contentPanel.add(calendarioUI, "calendario");
+            cardLayout.show(contentPanel, "calendario");
         });
     }
 

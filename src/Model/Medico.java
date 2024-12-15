@@ -41,4 +41,9 @@ public class Medico {
 
     public String getMatricula() { return matricula; }
     public void setMatricula(String matricula) { this.matricula = matricula; }
+
+    @Override
+    public String toString() {
+        return this.getNombreYApellido();
+    }
 } 

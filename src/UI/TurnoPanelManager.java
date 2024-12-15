@@ -9,8 +9,8 @@ import Service.TurnoServiceImpl;
 import Service.MedicoService;
 import Service.PacienteService;
 import Service.ServiceException;
-import Service.MedicoServiceImpl;
-import Service.PacienteServiceImpl;
+//import Service.MedicoServiceImpl;
+//import Service.PacienteServiceImpl;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;

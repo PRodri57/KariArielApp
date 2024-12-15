@@ -100,7 +100,7 @@ public class PacientePanelManager extends AbstractPanelManager {
             String email = (String) tableModel.getValueAt(selectedRow, 4);
             String obraSocial = (String) tableModel.getValueAt(selectedRow, 5);
 
-            agregarPacienteUI.setFormData(id, nombreApellido, dni, telefono, email, obraSocial);
+            //agregarPacienteUI.setFormData(id, nombreApellido, dni, telefono, email, obraSocial);
             modificarPacienteUI.setFormData(id, nombreApellido, dni, telefono, email, obraSocial);
             eliminarPacienteUI.setFormData(id, nombreApellido, dni, telefono, email, obraSocial);
         }

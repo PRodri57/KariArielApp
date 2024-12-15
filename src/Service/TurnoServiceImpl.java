@@ -21,9 +21,26 @@ public class TurnoServiceImpl implements TurnoService {
         }
     }
 
+    private boolean existeTurnoParaMedicoEnFechaYHora(Turno turno) throws ServiceException {
+        try {
+            List<Turno> turnosDelDia = turnoDAO.obtenerPorFechaYMedico(turno.getFecha(), turno.getMedico().getId());
+            for (Turno t : turnosDelDia) {
+                if (t.getHora().equals(turno.getHora()) && t.getId() != turno.getId()) {
+                    return true;
+                }
+            }
+            return false;
+        } catch (Exception e) {
+            throw new ServiceException("Error al verificar disponibilidad del turno: " + e.getMessage());
+        }
+    }
+
     @Override
     public void agregarTurno(Turno turno) throws ServiceException {
         try {
+            if (existeTurnoParaMedicoEnFechaYHora(turno)) {
+                throw new ServiceException("Ya existe un turno para este médico en la fecha y hora seleccionada");
+            }
             turnoDAO.agregar(turno);
         } catch (Exception e) {
             throw new ServiceException("Error al agregar turno: " + e.getMessage());
@@ -33,6 +50,9 @@ public class TurnoServiceImpl implements TurnoService {
     @Override
     public void modificarTurno(Turno turno) throws ServiceException {
         try {
+            if (existeTurnoParaMedicoEnFechaYHora(turno)) {
+                throw new ServiceException("Ya existe un turno para este médico en la fecha y hora seleccionada");
+            }
             turnoDAO.modificar(turno);
         } catch (Exception e) {
             throw new ServiceException("Error al modificar turno: " + e.getMessage());

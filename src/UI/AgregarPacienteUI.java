@@ -93,12 +93,12 @@ public class AgregarPacienteUI extends JPanel {
         obraSocialField.setText("");
     }
     
-    public void setFormData(int id, String nombre, String dni, String telefono, String email, 
-                          String obraSocial) {
-        nombreField.setText(nombre);
-        dniField.setText(dni);
-        telefonoField.setText(telefono);
-        emailField.setText(email);
-        obraSocialField.setText(obraSocial);
-    }
+//    public void setFormData(int id, String nombre, String dni, String telefono, String email,
+//                          String obraSocial) {
+//        nombreField.setText(nombre);
+//        dniField.setText(dni);
+//        telefonoField.setText(telefono);
+//        emailField.setText(email);
+//        obraSocialField.setText(obraSocial);
+//    }
 }
