@@ -115,6 +115,24 @@ public class TurnoDAOImpl implements TurnoDAO {
         return turnos;
     }
 
+    @Override
+    public List<Turno> obtenerTurnosEntreFechas(int medicoId, Date fechaInicio, Date fechaFin) throws Exception {
+        String sql = "SELECT * FROM turnos WHERE medico_id = ? AND fecha BETWEEN ? AND ? ORDER BY fecha, hora";
+        List<Turno> turnos = new ArrayList<>();
+        
+        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
+            stmt.setInt(1, medicoId);
+            stmt.setDate(2, new java.sql.Date(fechaInicio.getTime()));
+            stmt.setDate(3, new java.sql.Date(fechaFin.getTime()));
+            
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                turnos.add(crearTurnoDesdeResultSet(rs));
+            }
+        }
+        return turnos;
+    }
+
     private Turno crearTurnoDesdeResultSet(ResultSet rs) throws Exception {
         Medico medico = medicoDAO.obtenerPorId(rs.getInt("medico_id"));
         Paciente paciente = pacienteDAO.obtenerPacientePorId(rs.getInt("paciente_id"));

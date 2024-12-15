@@ -12,4 +12,5 @@ public interface TurnoDAO {
     List<Turno> obtenerTodosPorMedico(int medicoId) throws Exception;
     List<Turno> obtenerPorFechaYMedico(Date fecha, int medicoId) throws Exception;
     List<Turno> obtenerTodos() throws Exception;
+    List<Turno> obtenerTurnosEntreFechas(int medicoId, Date fechaInicio, Date fechaFin) throws Exception;
 } 

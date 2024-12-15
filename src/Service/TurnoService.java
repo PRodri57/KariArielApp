@@ -12,4 +12,5 @@ public interface TurnoService {
     List<Turno> obtenerTodosPorMedico(int medicoId) throws ServiceException;
     Turno obtenerPorId(int id) throws ServiceException;
     List<Turno> obtenerTodos() throws ServiceException;
+    List<Turno> obtenerTurnosEntreFechas(int medicoId, Date fechaInicio, Date fechaFin) throws ServiceException;
 } 

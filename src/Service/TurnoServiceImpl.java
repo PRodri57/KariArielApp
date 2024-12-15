@@ -94,4 +94,13 @@ public class TurnoServiceImpl implements TurnoService {
             throw new ServiceException("Error al obtener turnos: " + e.getMessage());
         }
     }
+
+    @Override
+    public List<Turno> obtenerTurnosEntreFechas(int medicoId, Date fechaInicio, Date fechaFin) throws ServiceException {
+        try {
+            return turnoDAO.obtenerTurnosEntreFechas(medicoId, fechaInicio, fechaFin);
+        } catch (Exception e) {
+            throw new ServiceException("Error al obtener turnos entre fechas: " + e.getMessage());
+        }
+    }
 } 
