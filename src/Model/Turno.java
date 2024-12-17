@@ -4,11 +4,17 @@ import java.util.Date;
 
 public class Turno {
     private int id;
+    private int medicoId;
+    private int pacienteId;
     private Date fecha;
     private Date hora;
     private Medico medico;
     private Paciente paciente;
     private String estado; // "Pendiente", "Confirmado", "Cancelado", "Completado"
+
+    public Turno() {
+        // Constructor vacío
+    }
 
     public Turno(int id, Date fecha, Date hora, Medico medico, Paciente paciente, String estado) {
         this.id = id;
@@ -17,6 +23,8 @@ public class Turno {
         this.medico = medico;
         this.paciente = paciente;
         this.estado = estado;
+        this.medicoId = medico.getId();
+        this.pacienteId = paciente.getId();
     }
 
     // Getters y Setters
@@ -66,5 +74,21 @@ public class Turno {
 
     public void setEstado(String estado) {
         this.estado = estado;
+    }
+
+    public int getMedicoId() {
+        return medicoId;
+    }
+
+    public void setMedicoId(int medicoId) {
+        this.medicoId = medicoId;
+    }
+
+    public int getPacienteId() {
+        return pacienteId;
+    }
+
+    public void setPacienteId(int pacienteId) {
+        this.pacienteId = pacienteId;
     }
 }

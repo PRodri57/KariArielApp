@@ -53,7 +53,14 @@ public class ConsultarTurnosUI extends JPanel {
 
     private void cargarTurnos() {
         try {
-            List<Turno> turnos = turnoService.obtenerTodosPorMedico(id);
+            List<Turno> turnos;
+            // Si es un médico
+            if (id > 0) {
+                turnos = turnoService.obtenerTodosPorMedico(id);
+            } else {
+                // Si es un paciente
+                turnos = turnoService.obtenerTodosPorPaciente(id);
+            }
             actualizarTabla(turnos);
         } catch (ServiceException e) {
             JOptionPane.showMessageDialog(this, 
@@ -85,5 +92,9 @@ public class ConsultarTurnosUI extends JPanel {
             CardLayout cl = (CardLayout) parent.getLayout();
             cl.show(parent, "mainPanel");
         }
+    }
+
+    public void actualizarTurnos() {
+        cargarTurnos();
     }
 }

@@ -5,7 +5,6 @@ import Model.Medico;
 import Service.MedicoService;
 import Service.MedicoServiceImpl;
 import Service.ServiceException;
-
 import javax.swing.table.DefaultTableModel;
 import javax.swing.*;
 import java.sql.Connection;
@@ -59,7 +58,7 @@ public class MedicoPanelManager extends AbstractPanelManager {
                 medico.getTelefono(),
                 medico.getEmail(),
                 medico.getEspecialidad(),
-                medico.getMatricula()
+                medico.getValorConsulta()
             });
         }
     }
@@ -79,7 +78,7 @@ public class MedicoPanelManager extends AbstractPanelManager {
                         medico.getTelefono(),
                         medico.getEmail(),
                         medico.getEspecialidad(),
-                        medico.getMatricula()
+                        medico.getValorConsulta()
                     });
                 } else {
                     JOptionPane.showMessageDialog(null, "No se encontró ningún médico con ese email");
@@ -100,11 +99,11 @@ public class MedicoPanelManager extends AbstractPanelManager {
             String telefono = (String) tableModel.getValueAt(selectedRow, 3);
             String email = (String) tableModel.getValueAt(selectedRow, 4);
             String especialidad = (String) tableModel.getValueAt(selectedRow, 5);
-            String matricula = (String) tableModel.getValueAt(selectedRow, 6);
+            double valorConsulta = (double) tableModel.getValueAt(selectedRow, 6);
 
-            agregarMedicoUI.setFormData(id, nombreApellido, dni, telefono, email, especialidad, matricula);
-            modificarMedicoUI.setFormData(id, nombreApellido, dni, telefono, email, especialidad, matricula);
-            eliminarMedicoUI.setFormData(id, nombreApellido, dni, telefono, email, especialidad, matricula);
+            agregarMedicoUI.setFormData(id, nombreApellido, dni, telefono, email, especialidad, valorConsulta);
+            modificarMedicoUI.setFormData(id, nombreApellido, dni, telefono, email, especialidad, valorConsulta);
+            eliminarMedicoUI.setFormData(id, nombreApellido, dni, telefono, email, especialidad, valorConsulta);
         }
     }
 }

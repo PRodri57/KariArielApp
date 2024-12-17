@@ -16,7 +16,7 @@ public class EliminarMedicoUI extends JPanel {
     private JLabel telefonoLabel;
     private JLabel emailLabel;
     private JLabel especialidadLabel;
-    private JLabel matriculaLabel;
+    private JLabel valorConsultaLabel;
     
     public EliminarMedicoUI(MedicoPanelManager panelManager, MedicoService medicoService) {
         this.panelManager = panelManager;
@@ -50,9 +50,9 @@ public class EliminarMedicoUI extends JPanel {
         especialidadLabel = new JLabel();
         infoPanel.add(especialidadLabel);
         
-        infoPanel.add(new JLabel("Matrícula:"));
-        matriculaLabel = new JLabel();
-        infoPanel.add(matriculaLabel);
+        infoPanel.add(new JLabel("Valor Consulta:"));
+        valorConsultaLabel = new JLabel();
+        infoPanel.add(valorConsultaLabel);
         
         JPanel buttonPanel = new JPanel();
         JButton eliminarButton = new JButton("Confirmar Eliminación");
@@ -88,13 +88,13 @@ public class EliminarMedicoUI extends JPanel {
     }
     
     public void setFormData(int id, String nombre, String dni, String telefono, String email, 
-                          String especialidad, String matricula) {
+                          String especialidad, double valorConsulta) {
         this.currentId = id;
         nombreLabel.setText(nombre);
         dniLabel.setText(dni);
         telefonoLabel.setText(telefono);
         emailLabel.setText(email);
         especialidadLabel.setText(especialidad);
-        matriculaLabel.setText(matricula);
+        valorConsultaLabel.setText(String.format("$%.2f", valorConsulta));
     }
 } 

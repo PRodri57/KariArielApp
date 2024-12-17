@@ -31,7 +31,7 @@ public abstract class AbstractPanelManager {
         initUIComponents();
     }
 
-    private void initComponents() {
+    protected void initComponents() {
         // Crear panel principal
         mainPanel = new JPanel(new BorderLayout());
         

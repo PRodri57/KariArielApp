@@ -117,14 +117,70 @@ public class TurnoDAOImpl implements TurnoDAO {
 
     @Override
     public List<Turno> obtenerTurnosEntreFechas(int medicoId, Date fechaInicio, Date fechaFin) throws Exception {
-        String sql = "SELECT * FROM turnos WHERE medico_id = ? AND fecha BETWEEN ? AND ? ORDER BY fecha, hora";
-        List<Turno> turnos = new ArrayList<>();
+        String sql = "SELECT t.ID, t.FECHA, t.HORA, t.MEDICO_ID, t.PACIENTE_ID, t.ESTADO " +
+                    "FROM TURNOS t " +
+                    "WHERE t.MEDICO_ID = ? " +
+                    "AND t.FECHA BETWEEN ? AND ?";
         
         try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
             stmt.setInt(1, medicoId);
             stmt.setDate(2, new java.sql.Date(fechaInicio.getTime()));
             stmt.setDate(3, new java.sql.Date(fechaFin.getTime()));
             
+            ResultSet rs = stmt.executeQuery();
+            List<Turno> turnos = new ArrayList<>();
+            
+            while (rs.next()) {
+                Turno turno = new Turno(
+                    rs.getInt("ID"),
+                    rs.getDate("FECHA"),
+                    rs.getTime("HORA"),
+                    medicoDAO.obtenerPorId(rs.getInt("MEDICO_ID")),
+                    pacienteDAO.obtenerPacientePorId(rs.getInt("PACIENTE_ID")),
+                    rs.getString("ESTADO")
+                );
+                turnos.add(turno);
+            }
+            
+            return turnos;
+        }
+    }
+
+    @Override
+    public List<Turno> obtenerTodosPorPaciente(int pacienteId) throws Exception {
+        String sql = "SELECT * FROM turnos WHERE paciente_id = ? ORDER BY fecha, hora";
+        List<Turno> turnos = new ArrayList<>();
+        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
+            stmt.setInt(1, pacienteId);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                turnos.add(crearTurnoDesdeResultSet(rs));
+            }
+        }
+        return turnos;
+    }
+
+    @Override
+    public List<Turno> obtenerTurnosPorFechaYMedico(Date fecha, int medicoId) throws Exception {
+        String sql = "SELECT * FROM turnos WHERE CAST(fecha AS DATE) = ? AND medico_id = ? ORDER BY hora";
+        List<Turno> turnos = new ArrayList<>();
+        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
+            stmt.setDate(1, new java.sql.Date(fecha.getTime()));
+            stmt.setInt(2, medicoId);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                turnos.add(crearTurnoDesdeResultSet(rs));
+            }
+        }
+        return turnos;
+    }
+
+    @Override
+    public List<Turno> obtenerTurnosPorFecha(Date fecha) throws Exception {
+        String sql = "SELECT * FROM turnos WHERE CAST(fecha AS DATE) = ? ORDER BY hora";
+        List<Turno> turnos = new ArrayList<>();
+        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
+            stmt.setDate(1, new java.sql.Date(fecha.getTime()));
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 turnos.add(crearTurnoDesdeResultSet(rs));

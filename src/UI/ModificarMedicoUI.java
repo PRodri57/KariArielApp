@@ -17,7 +17,7 @@ public class ModificarMedicoUI extends JPanel {
     private JTextField telefonoField;
     private JTextField emailField;
     private JTextField especialidadField;
-    private JTextField matriculaField;
+    private JTextField valorConsultaField;
     
     public ModificarMedicoUI(MedicoService medicoService, MedicoPanelManager panelManager) {
         this.medicoService = medicoService;
@@ -51,9 +51,9 @@ public class ModificarMedicoUI extends JPanel {
         especialidadField = new JTextField();
         formPanel.add(especialidadField);
         
-        formPanel.add(new JLabel("Matrícula:"));
-        matriculaField = new JTextField();
-        formPanel.add(matriculaField);
+        formPanel.add(new JLabel("Valor Consulta:"));
+        valorConsultaField = new JTextField();
+        formPanel.add(valorConsultaField);
         
         JPanel buttonPanel = new JPanel();
         JButton guardarButton = new JButton("Guardar Cambios");
@@ -78,25 +78,27 @@ public class ModificarMedicoUI extends JPanel {
                 telefonoField.getText(),
                 emailField.getText(),
                 especialidadField.getText(),
-                matriculaField.getText()
+                Double.parseDouble(valorConsultaField.getText())
             );
             
             medicoService.modificar(medico);
             JOptionPane.showMessageDialog(this, "Médico modificado exitosamente");
             panelManager.mostrarPanel("mainPanel");
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "El valor de consulta debe ser un número válido");
         } catch (ServiceException e) {
             JOptionPane.showMessageDialog(this, "Error al modificar médico: " + e.getMessage());
         }
     }
     
     public void setFormData(int id, String nombre, String dni, String telefono, String email, 
-                          String especialidad, String matricula) {
+                          String especialidad, double valorConsulta) {
         this.currentId = id;
         nombreField.setText(nombre);
         dniField.setText(dni);
         telefonoField.setText(telefono);
         emailField.setText(email);
         especialidadField.setText(especialidad);
-        matriculaField.setText(matricula);
+        valorConsultaField.setText(String.valueOf(valorConsulta));
     }
 } 

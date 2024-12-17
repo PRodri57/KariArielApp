@@ -15,32 +15,33 @@ public class TurnoServiceImpl implements TurnoService {
     @Override
     public List<Turno> obtenerTurnosPorFechaYMedico(Date fecha, int medicoId) throws ServiceException {
         try {
-            return turnoDAO.obtenerPorFechaYMedico(fecha, medicoId);
+            return turnoDAO.obtenerTurnosPorFechaYMedico(fecha, medicoId);
         } catch (Exception e) {
-            throw new ServiceException("Error al obtener turnos: " + e.getMessage());
+            throw new ServiceException("Error al obtener turnos por fecha y médico: " + e.getMessage());
         }
     }
 
-    private boolean existeTurnoParaMedicoEnFechaYHora(Turno turno) throws ServiceException {
+    @Override
+    public List<Turno> obtenerTurnosPorFecha(Date fecha) throws ServiceException {
         try {
-            List<Turno> turnosDelDia = turnoDAO.obtenerPorFechaYMedico(turno.getFecha(), turno.getMedico().getId());
-            for (Turno t : turnosDelDia) {
-                if (t.getHora().equals(turno.getHora()) && t.getId() != turno.getId()) {
-                    return true;
-                }
-            }
-            return false;
+            return turnoDAO.obtenerTurnosPorFecha(fecha);
         } catch (Exception e) {
-            throw new ServiceException("Error al verificar disponibilidad del turno: " + e.getMessage());
+            throw new ServiceException("Error al obtener turnos por fecha: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public List<Turno> obtenerTurnosEntreFechas(int medicoId, Date fechaInicio, Date fechaFin) throws ServiceException {
+        try {
+            return turnoDAO.obtenerTurnosEntreFechas(medicoId, fechaInicio, fechaFin);
+        } catch (Exception e) {
+            throw new ServiceException("Error al obtener turnos entre fechas: " + e.getMessage());
         }
     }
 
     @Override
     public void agregarTurno(Turno turno) throws ServiceException {
         try {
-            if (existeTurnoParaMedicoEnFechaYHora(turno)) {
-                throw new ServiceException("Ya existe un turno para este médico en la fecha y hora seleccionada");
-            }
             turnoDAO.agregar(turno);
         } catch (Exception e) {
             throw new ServiceException("Error al agregar turno: " + e.getMessage());
@@ -50,9 +51,6 @@ public class TurnoServiceImpl implements TurnoService {
     @Override
     public void modificarTurno(Turno turno) throws ServiceException {
         try {
-            if (existeTurnoParaMedicoEnFechaYHora(turno)) {
-                throw new ServiceException("Ya existe un turno para este médico en la fecha y hora seleccionada");
-            }
             turnoDAO.modificar(turno);
         } catch (Exception e) {
             throw new ServiceException("Error al modificar turno: " + e.getMessage());
@@ -65,15 +63,6 @@ public class TurnoServiceImpl implements TurnoService {
             turnoDAO.eliminar(id);
         } catch (Exception e) {
             throw new ServiceException("Error al eliminar turno: " + e.getMessage());
-        }
-    }
-
-    @Override
-    public List<Turno> obtenerTodosPorMedico(int medicoId) throws ServiceException {
-        try {
-            return turnoDAO.obtenerTodosPorMedico(medicoId);
-        } catch (Exception e) {
-            throw new ServiceException("Error al obtener turnos del médico: " + e.getMessage());
         }
     }
 
@@ -96,11 +85,20 @@ public class TurnoServiceImpl implements TurnoService {
     }
 
     @Override
-    public List<Turno> obtenerTurnosEntreFechas(int medicoId, Date fechaInicio, Date fechaFin) throws ServiceException {
+    public List<Turno> obtenerTodosPorPaciente(int pacienteId) throws ServiceException {
         try {
-            return turnoDAO.obtenerTurnosEntreFechas(medicoId, fechaInicio, fechaFin);
+            return turnoDAO.obtenerTodosPorPaciente(pacienteId);
         } catch (Exception e) {
-            throw new ServiceException("Error al obtener turnos entre fechas: " + e.getMessage());
+            throw new ServiceException("Error al obtener turnos por paciente: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public List<Turno> obtenerTodosPorMedico(int medicoId) throws ServiceException {
+        try {
+            return turnoDAO.obtenerTodosPorMedico(medicoId);
+        } catch (Exception e) {
+            throw new ServiceException("Error al obtener turnos por médico: " + e.getMessage());
         }
     }
 } 

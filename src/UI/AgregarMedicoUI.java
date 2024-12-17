@@ -16,7 +16,7 @@ public class AgregarMedicoUI extends JPanel {
     private JTextField telefonoField;
     private JTextField emailField;
     private JTextField especialidadField;
-    private JTextField matriculaField;
+    private JTextField valorConsultaField;
     
     public AgregarMedicoUI(MedicoService medicoService, MedicoPanelManager panelManager) {
         this.medicoService = medicoService;
@@ -51,9 +51,9 @@ public class AgregarMedicoUI extends JPanel {
         especialidadField = new JTextField();
         formPanel.add(especialidadField);
         
-        formPanel.add(new JLabel("Matrícula:"));
-        matriculaField = new JTextField();
-        formPanel.add(matriculaField);
+        formPanel.add(new JLabel("Valor Consulta:"));
+        valorConsultaField = new JTextField();
+        formPanel.add(valorConsultaField);
         
         // Panel para botones
         JPanel buttonPanel = new JPanel();
@@ -72,6 +72,8 @@ public class AgregarMedicoUI extends JPanel {
     
     private void guardarMedico() {
         try {
+            double valorConsulta = Double.parseDouble(valorConsultaField.getText());
+            
             Medico medico = new Medico(
                 0,
                 nombreField.getText(),
@@ -79,13 +81,15 @@ public class AgregarMedicoUI extends JPanel {
                 telefonoField.getText(),
                 emailField.getText(),
                 especialidadField.getText(),
-                matriculaField.getText()
+                valorConsulta
             );
             
             medicoService.agregar(medico);
             JOptionPane.showMessageDialog(this, "Médico agregado exitosamente");
             limpiarCampos();
             panelManager.mostrarPanel("mainPanel");
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "El valor de consulta debe ser un número válido");
         } catch (ServiceException e) {
             JOptionPane.showMessageDialog(this, "Error al agregar médico: " + e.getMessage());
         }
@@ -97,16 +101,16 @@ public class AgregarMedicoUI extends JPanel {
         telefonoField.setText("");
         emailField.setText("");
         especialidadField.setText("");
-        matriculaField.setText("");
+        valorConsultaField.setText("");
     }
     
     public void setFormData(int id, String nombre, String dni, String telefono, String email, 
-                          String especialidad, String matricula) {
+                          String especialidad, double valorConsulta) {
         nombreField.setText(nombre);
         dniField.setText(dni);
         telefonoField.setText(telefono);
         emailField.setText(email);
         especialidadField.setText(especialidad);
-        matriculaField.setText(matricula);
+        valorConsultaField.setText(String.valueOf(valorConsulta));
     }
 } 
