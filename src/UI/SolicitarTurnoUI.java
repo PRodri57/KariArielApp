@@ -10,6 +10,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.Date;
 import java.util.List;
+import java.util.Calendar;
+import java.text.SimpleDateFormat;
 
 public class SolicitarTurnoUI extends JPanel {
     private TurnoService turnoService;
@@ -18,6 +20,7 @@ public class SolicitarTurnoUI extends JPanel {
     private JComboBox<Medico> medicoCombo;
     private SpinnerDateModel dateModel;
     private JSpinner dateSpinner;
+    private JComboBox<String> horaCombo;
     private JLabel consultorioLabel;
 
     public SolicitarTurnoUI(TurnoService turnoService, MedicoService medicoService, int pacienteId) {
@@ -65,17 +68,28 @@ public class SolicitarTurnoUI extends JPanel {
         consultorioLabel = new JLabel();
         mainPanel.add(consultorioLabel, gbc);
 
-        // Selector de fecha y hora
+        // Selector de fecha
         gbc.gridx = 0;
         gbc.gridy = 3;
-        mainPanel.add(new JLabel("Fecha y Hora:"), gbc);
+        mainPanel.add(new JLabel("Fecha:"), gbc);
 
         gbc.gridx = 1;
         dateModel = new SpinnerDateModel();
+        dateModel.setCalendarField(Calendar.DAY_OF_MONTH);
         dateSpinner = new JSpinner(dateModel);
-        JSpinner.DateEditor dateEditor = new JSpinner.DateEditor(dateSpinner, "dd/MM/yyyy HH:mm");
+        JSpinner.DateEditor dateEditor = new JSpinner.DateEditor(dateSpinner, "dd/MM/yyyy");
         dateSpinner.setEditor(dateEditor);
         mainPanel.add(dateSpinner, gbc);
+
+        // Selector de hora
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        mainPanel.add(new JLabel("Hora:"), gbc);
+
+        gbc.gridx = 1;
+        horaCombo = new JComboBox<>();
+        cargarHorarios();
+        mainPanel.add(horaCombo, gbc);
 
         add(mainPanel, BorderLayout.CENTER);
 
@@ -108,10 +122,25 @@ public class SolicitarTurnoUI extends JPanel {
         }
     }
 
+    private void cargarHorarios() {
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.HOUR_OF_DAY, 8);
+        cal.set(Calendar.MINUTE, 0);
+        
+        SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
+        
+        while (cal.get(Calendar.HOUR_OF_DAY) < 20 || 
+              (cal.get(Calendar.HOUR_OF_DAY) == 20 && cal.get(Calendar.MINUTE) == 0)) {
+            horaCombo.addItem(timeFormat.format(cal.getTime()));
+            cal.add(Calendar.MINUTE, 30);
+        }
+    }
+
     private void solicitarTurno() {
         try {
             Medico medicoSeleccionado = (Medico) medicoCombo.getSelectedItem();
             Date fechaSeleccionada = dateModel.getDate();
+            String horaSeleccionada = (String) horaCombo.getSelectedItem();
 
             if (medicoSeleccionado == null) {
                 JOptionPane.showMessageDialog(this, 
@@ -121,10 +150,22 @@ public class SolicitarTurnoUI extends JPanel {
                 return;
             }
 
+            SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
+            Date horaDate = timeFormat.parse(horaSeleccionada);
+            
+            Calendar fechaCal = Calendar.getInstance();
+            fechaCal.setTime(fechaSeleccionada);
+            
+            Calendar horaCal = Calendar.getInstance();
+            horaCal.setTime(horaDate);
+            
+            fechaCal.set(Calendar.HOUR_OF_DAY, horaCal.get(Calendar.HOUR_OF_DAY));
+            fechaCal.set(Calendar.MINUTE, horaCal.get(Calendar.MINUTE));
+
             Turno nuevoTurno = new Turno(
                 0,  // el ID será asignado por la base de datos
-                fechaSeleccionada,
-                fechaSeleccionada,
+                fechaCal.getTime(),  // fecha completa
+                fechaCal.getTime(),  // hora
                 medicoSeleccionado,
                 null,  // el paciente se manejará por ID
                 "PENDIENTE"
@@ -138,7 +179,7 @@ public class SolicitarTurnoUI extends JPanel {
                 "Éxito", 
                 JOptionPane.INFORMATION_MESSAGE);
             volverAlMenu();
-        } catch (ServiceException e) {
+        } catch (Exception e) {
             JOptionPane.showMessageDialog(this, 
                 "Error al solicitar turno: " + e.getMessage(), 
                 "Error", 

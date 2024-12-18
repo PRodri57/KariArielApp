@@ -8,18 +8,20 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.List;
-import java.util.Date;
-
 
 public class CalendarioTurnosUI extends JPanel {
     private TurnoService turnoService;
-    private int medicoId;  // -1 para admin (todos los médicos), otro valor para médico específico
+    private int medicoId;
     private DefaultTableModel tableModel;
+    private Date fechaActual;
+    private JLabel semanaLabel;
 
     public CalendarioTurnosUI(TurnoService turnoService, int medicoId) {
         this.turnoService = turnoService;
         this.medicoId = medicoId;
+        this.fechaActual = new Date();
         initComponents();
     }
 
@@ -27,37 +29,30 @@ public class CalendarioTurnosUI extends JPanel {
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // Panel superior con selector de fecha
-        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JLabel fechaLabel = new JLabel("Seleccione fecha:");
+        // Panel superior con navegación
+        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         
-        // Crear selectores para día, mes y año
-        SpinnerDateModel dateModel = new SpinnerDateModel();
-        JSpinner dateSpinner = new JSpinner(dateModel);
-        JSpinner.DateEditor dateEditor = new JSpinner.DateEditor(dateSpinner, "dd/MM/yyyy");
-        dateSpinner.setEditor(dateEditor);
-        dateSpinner.setValue(new Date());  // Fecha actual por defecto
+        JButton prevButton = new JButton("Semana Anterior");
+        semanaLabel = new JLabel();
+        JButton nextButton = new JButton("Semana Siguiente");
         
-        JButton buscarButton = new JButton("Buscar Turnos");
-        topPanel.add(fechaLabel);
-        topPanel.add(dateSpinner);
-        topPanel.add(buscarButton);
+        prevButton.addActionListener(e -> cambiarSemana(-1));
+        nextButton.addActionListener(e -> cambiarSemana(1));
+        
+        topPanel.add(prevButton);
+        topPanel.add(semanaLabel);
+        topPanel.add(nextButton);
 
-        // Tabla de turnos
-        String[] columnas = {"Hora", "Médico", "Paciente", "Estado"};
-        tableModel = new DefaultTableModel(columnas, 0) {
+        // Configurar tabla
+        tableModel = new DefaultTableModel() {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
             }
         };
         JTable turnosTable = new JTable(tableModel);
+        turnosTable.setRowHeight(50);
         JScrollPane scrollPane = new JScrollPane(turnosTable);
-
-        buscarButton.addActionListener(e -> {
-            Date fecha = (Date) dateSpinner.getValue();
-            actualizarTurnos(fecha);
-        });
 
         // Panel inferior con botón volver
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -69,36 +64,106 @@ public class CalendarioTurnosUI extends JPanel {
         add(scrollPane, BorderLayout.CENTER);
         add(bottomPanel, BorderLayout.SOUTH);
 
-        // Inicializar con la fecha actual
-        actualizarTurnos(new Date());
+        // Inicializar con la semana actual
+        actualizarCalendario();
     }
 
-    private void actualizarTurnos(Date fecha) {
-        try {
-            tableModel.setRowCount(0);
-            List<Turno> turnos;
-            
-            if (medicoId == -1) {
-                // Vista de admin: todos los turnos
-                turnos = turnoService.obtenerTurnosPorFecha(fecha);
-            } else {
-                // Vista de médico: solo sus turnos
-                turnos = turnoService.obtenerTurnosPorFechaYMedico(fecha, medicoId);
+    private void cambiarSemana(int direccion) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(fechaActual);
+        cal.add(Calendar.WEEK_OF_YEAR, direccion);
+        fechaActual = cal.getTime();
+        actualizarCalendario();
+    }
+
+    private void actualizarCalendario() {
+        // Configurar columnas
+        tableModel.setColumnCount(0);
+        tableModel.addColumn("Hora");
+        
+        // Obtener fechas de la semana
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(fechaActual);
+        cal.set(Calendar.DAY_OF_WEEK, cal.getFirstDayOfWeek());
+        
+        SimpleDateFormat columnFormat = new SimpleDateFormat("EEE dd/MM");
+        SimpleDateFormat labelFormat = new SimpleDateFormat("dd/MM/yyyy");
+        
+        // Guardar la fecha de inicio y fin para el label
+        String inicioSemana = labelFormat.format(cal.getTime());
+        
+        // Agregar columnas para cada día
+        for (int i = 0; i < 7; i++) {
+            tableModel.addColumn(columnFormat.format(cal.getTime()));
+            cal.add(Calendar.DAY_OF_WEEK, 1);
+        }
+        
+        // Actualizar label de la semana
+        cal.add(Calendar.DAY_OF_WEEK, -1);
+        String finSemana = labelFormat.format(cal.getTime());
+        semanaLabel.setText("Semana: " + inicioSemana + " - " + finSemana);
+
+        // Limpiar filas existentes
+        tableModel.setRowCount(0);
+
+        // Crear filas para cada horario (de 8:00 a 20:00 cada 30 minutos)
+        Calendar horaCal = Calendar.getInstance();
+        horaCal.set(Calendar.HOUR_OF_DAY, 8);
+        horaCal.set(Calendar.MINUTE, 0);
+        SimpleDateFormat horaFormat = new SimpleDateFormat("HH:mm");
+
+        while (horaCal.get(Calendar.HOUR_OF_DAY) < 20) {
+            Vector<String> fila = new Vector<>();
+            fila.add(horaFormat.format(horaCal.getTime()));
+
+            // Volver al inicio de la semana
+            cal.setTime(fechaActual);
+            cal.set(Calendar.DAY_OF_WEEK, cal.getFirstDayOfWeek());
+
+            // Para cada día de la semana
+            for (int i = 0; i < 7; i++) {
+                StringBuilder celda = new StringBuilder();
+                try {
+                    List<Turno> turnos;
+                    if (medicoId == -1) {
+                        turnos = turnoService.obtenerTurnosPorFecha(cal.getTime());
+                    } else {
+                        turnos = turnoService.obtenerTurnosPorFechaYMedico(cal.getTime(), medicoId);
+                    }
+
+                    for (Turno turno : turnos) {
+                        Calendar turnoHora = Calendar.getInstance();
+                        turnoHora.setTime(turno.getHora());
+                        
+                        // Calcular la diferencia en minutos entre el turno y el horario actual
+                        long diffMinutos = Math.abs(
+                            (turnoHora.get(Calendar.HOUR_OF_DAY) * 60 + turnoHora.get(Calendar.MINUTE)) -
+                            (horaCal.get(Calendar.HOUR_OF_DAY) * 60 + horaCal.get(Calendar.MINUTE))
+                        );
+                        
+                        // Si el turno está dentro de los 15 minutos antes o después del horario actual
+                        if (diffMinutos <= 15) {
+                            if (celda.length() > 0) {
+                                celda.append("\n");
+                            }
+                            celda.append(horaFormat.format(turno.getHora()))
+                                .append(" - ")
+                                .append(turno.getPaciente().getNombreYApellido());
+                            if (medicoId == -1) {
+                                celda.append(" (").append(turno.getMedico().getNombreYApellido()).append(")");
+                            }
+                            celda.append(" - ").append(turno.getEstado());
+                        }
+                    }
+                } catch (ServiceException e) {
+                    celda.append("Error al cargar turnos");
+                }
+                fila.add(celda.toString());
+                cal.add(Calendar.DAY_OF_WEEK, 1);
             }
 
-            for (Turno turno : turnos) {
-                tableModel.addRow(new Object[]{
-                    new SimpleDateFormat("HH:mm").format(turno.getHora()),
-                    turno.getMedico().getNombreYApellido(),
-                    turno.getPaciente().getNombreYApellido(),
-                    turno.getEstado()
-                });
-            }
-        } catch (ServiceException e) {
-            JOptionPane.showMessageDialog(this, 
-                "Error al cargar turnos: " + e.getMessage(), 
-                "Error", 
-                JOptionPane.ERROR_MESSAGE);
+            tableModel.addRow(fila);
+            horaCal.add(Calendar.MINUTE, 30);
         }
     }
 
