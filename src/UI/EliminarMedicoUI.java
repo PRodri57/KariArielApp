@@ -17,6 +17,7 @@ public class EliminarMedicoUI extends JPanel {
     private JLabel emailLabel;
     private JLabel especialidadLabel;
     private JLabel valorConsultaLabel;
+    private JLabel consultorioLabel;
     
     public EliminarMedicoUI(MedicoPanelManager panelManager, MedicoService medicoService) {
         this.panelManager = panelManager;
@@ -27,7 +28,7 @@ public class EliminarMedicoUI extends JPanel {
     private void initComponents() {
         setLayout(new BorderLayout());
         
-        JPanel infoPanel = new JPanel(new GridLayout(7, 2, 5, 5));
+        JPanel infoPanel = new JPanel(new GridLayout(8, 2, 5, 5));
         infoPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         
         infoPanel.add(new JLabel("Nombre y Apellido:"));
@@ -53,6 +54,10 @@ public class EliminarMedicoUI extends JPanel {
         infoPanel.add(new JLabel("Valor Consulta:"));
         valorConsultaLabel = new JLabel();
         infoPanel.add(valorConsultaLabel);
+        
+        infoPanel.add(new JLabel("Consultorio:"));
+        consultorioLabel = new JLabel();
+        infoPanel.add(consultorioLabel);
         
         JPanel buttonPanel = new JPanel();
         JButton eliminarButton = new JButton("Confirmar Eliminación");
@@ -88,7 +93,7 @@ public class EliminarMedicoUI extends JPanel {
     }
     
     public void setFormData(int id, String nombre, String dni, String telefono, String email, 
-                          String especialidad, double valorConsulta) {
+                          String especialidad, double valorConsulta, int consultorio) {
         this.currentId = id;
         nombreLabel.setText(nombre);
         dniLabel.setText(dni);
@@ -96,5 +101,6 @@ public class EliminarMedicoUI extends JPanel {
         emailLabel.setText(email);
         especialidadLabel.setText(especialidad);
         valorConsultaLabel.setText(String.format("$%.2f", valorConsulta));
+        consultorioLabel.setText(String.valueOf(consultorio));
     }
 } 

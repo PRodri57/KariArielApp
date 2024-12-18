@@ -8,6 +8,7 @@ public class Medico {
     private String email;
     private String especialidad;
     private double valorConsulta;
+    private int consultorio;
 
     // Constructor
     public Medico(int id, String nombreYApellido, String dni, String telefono, String email, String especialidad, double valorConsulta) {
@@ -18,6 +19,17 @@ public class Medico {
         this.email = email;
         this.especialidad = especialidad;
         this.valorConsulta = valorConsulta;
+    }
+
+    public Medico(int id, String nombreYApellido, String dni, String telefono, String email, String especialidad, double valorConsulta, int consultorio) {
+        this.id = id;
+        this.nombreYApellido = nombreYApellido;
+        this.dni = dni;
+        this.telefono = telefono;
+        this.email = email;
+        this.especialidad = especialidad;
+        this.valorConsulta = valorConsulta;
+        this.consultorio = consultorio;
     }
 
     // Getters and Setters
@@ -41,6 +53,9 @@ public class Medico {
 
     public double getValorConsulta() { return valorConsulta; }
     public void setValorConsulta(double valorConsulta) { this.valorConsulta = valorConsulta; }
+
+    public int getConsultorio() { return consultorio; }
+    public void setConsultorio(int consultorio) { this.consultorio = consultorio; }
 
     @Override
     public String toString() {

@@ -21,6 +21,39 @@ public class TurnoDAOImpl implements TurnoDAO {
 
     @Override
     public void agregar(Turno turno) throws Exception {
+        // Primero verificamos si el médico ya tiene un turno en ese horario
+        String checkMedicoSql = "SELECT COUNT(*) FROM turnos " +
+                               "WHERE medico_id = ? AND fecha = ? AND hora = ?";
+                             
+        try (PreparedStatement checkMedicoStmt = conexion.prepareStatement(checkMedicoSql)) {
+            checkMedicoStmt.setInt(1, turno.getMedicoId());
+            checkMedicoStmt.setDate(2, new java.sql.Date(turno.getFecha().getTime()));
+            checkMedicoStmt.setTime(3, new java.sql.Time(turno.getHora().getTime()));
+            
+            ResultSet rs = checkMedicoStmt.executeQuery();
+            if (rs.next() && rs.getInt(1) > 0) {
+                throw new Exception("El médico ya tiene un turno asignado en ese horario");
+            }
+        }
+
+        // Luego verificamos si el consultorio está disponible
+        String checkConsultorioSql = "SELECT COUNT(*) FROM turnos t " +
+                                    "JOIN medicos m ON t.medico_id = m.id " +
+                                    "WHERE m.consultorio = (SELECT consultorio FROM medicos WHERE id = ?) " +
+                                    "AND t.fecha = ? AND t.hora = ?";
+                             
+        try (PreparedStatement checkConsultorioStmt = conexion.prepareStatement(checkConsultorioSql)) {
+            checkConsultorioStmt.setInt(1, turno.getMedicoId());
+            checkConsultorioStmt.setDate(2, new java.sql.Date(turno.getFecha().getTime()));
+            checkConsultorioStmt.setTime(3, new java.sql.Time(turno.getHora().getTime()));
+            
+            ResultSet rs = checkConsultorioStmt.executeQuery();
+            if (rs.next() && rs.getInt(1) > 0) {
+                throw new Exception("El consultorio ya está ocupado en ese horario");
+            }
+        }
+
+        // Si pasó todas las validaciones, procedemos con la inserción
         String sql = "INSERT INTO turnos (fecha, hora, medico_id, paciente_id, estado) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = conexion.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setDate(1, new java.sql.Date(turno.getFecha().getTime()));

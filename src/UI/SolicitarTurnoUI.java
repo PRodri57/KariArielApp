@@ -8,7 +8,6 @@ import Service.ServiceException;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -19,6 +18,7 @@ public class SolicitarTurnoUI extends JPanel {
     private JComboBox<Medico> medicoCombo;
     private SpinnerDateModel dateModel;
     private JSpinner dateSpinner;
+    private JLabel consultorioLabel;
 
     public SolicitarTurnoUI(TurnoService turnoService, MedicoService medicoService, int pacienteId) {
         this.turnoService = turnoService;
@@ -53,11 +53,21 @@ public class SolicitarTurnoUI extends JPanel {
 
         gbc.gridx = 1;
         medicoCombo = new JComboBox<>();
+        medicoCombo.addActionListener(e -> actualizarConsultorio());
         mainPanel.add(medicoCombo, gbc);
+
+        // Mostrar consultorio
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        mainPanel.add(new JLabel("Consultorio:"), gbc);
+
+        gbc.gridx = 1;
+        consultorioLabel = new JLabel();
+        mainPanel.add(consultorioLabel, gbc);
 
         // Selector de fecha y hora
         gbc.gridx = 0;
-        gbc.gridy = 2;
+        gbc.gridy = 3;
         mainPanel.add(new JLabel("Fecha y Hora:"), gbc);
 
         gbc.gridx = 1;
@@ -141,6 +151,15 @@ public class SolicitarTurnoUI extends JPanel {
         if (parent != null) {
             CardLayout cardLayout = (CardLayout) parent.getLayout();
             cardLayout.show(parent, "menu");
+        }
+    }
+
+    private void actualizarConsultorio() {
+        Medico medicoSeleccionado = (Medico) medicoCombo.getSelectedItem();
+        if (medicoSeleccionado != null) {
+            consultorioLabel.setText("Consultorio " + medicoSeleccionado.getConsultorio());
+        } else {
+            consultorioLabel.setText("");
         }
     }
 } 

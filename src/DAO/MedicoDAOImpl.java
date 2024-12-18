@@ -14,7 +14,7 @@ public class MedicoDAOImpl implements MedicoDAO {
 
     @Override
     public void agregar(Medico medico) throws SQLException {
-        String sql = "INSERT INTO medicos (nombre_y_apellido, dni, telefono, email, especialidad, valor_consulta) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO medicos (nombre_y_apellido, dni, telefono, email, especialidad, valor_consulta, consultorio) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = conexion.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, medico.getNombreYApellido());
             stmt.setString(2, medico.getDni());
@@ -22,6 +22,7 @@ public class MedicoDAOImpl implements MedicoDAO {
             stmt.setString(4, medico.getEmail());
             stmt.setString(5, medico.getEspecialidad());
             stmt.setDouble(6, medico.getValorConsulta());
+            stmt.setInt(7, medico.getConsultorio());
             stmt.executeUpdate();
         } catch (SQLException e) {
             System.err.println("Error SQL en MedicoDAOImpl.agregar: " + e.getMessage());
@@ -44,7 +45,8 @@ public class MedicoDAOImpl implements MedicoDAO {
                     rs.getString("telefono"),
                     rs.getString("email"),
                     rs.getString("especialidad"),
-                    rs.getDouble("valor_consulta")
+                    rs.getDouble("valor_consulta"),
+                    rs.getInt("consultorio")
                 );
             }
             return null;
@@ -75,7 +77,8 @@ public class MedicoDAOImpl implements MedicoDAO {
                     rs.getString("telefono"),
                     rs.getString("email"),
                     rs.getString("especialidad"),
-                    rs.getDouble("valor_consulta")
+                    rs.getDouble("valor_consulta"),
+                    rs.getInt("consultorio")
                 );
             }
             return null;
@@ -97,7 +100,8 @@ public class MedicoDAOImpl implements MedicoDAO {
                     rs.getString("telefono"),
                     rs.getString("email"),
                     rs.getString("especialidad"),
-                    rs.getDouble("valor_consulta")
+                    rs.getDouble("valor_consulta"),
+                    rs.getInt("consultorio")
                 ));
             }
             return medicos;

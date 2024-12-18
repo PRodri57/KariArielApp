@@ -26,7 +26,7 @@ public class MedicoPanelManager extends AbstractPanelManager {
         medicoService = new MedicoServiceImpl(medicoDAO);
         
         tableModel = new DefaultTableModel(
-            new Object[]{"ID", "Nombre y Apellido", "DNI", "Teléfono", "Email", "Especialidad", "Matrícula"}, 
+            new Object[]{"ID", "Nombre y Apellido", "DNI", "Teléfono", "Email", "Especialidad", "Matrícula", "Consultorio"}, 
             0
         ) {
             @Override
@@ -58,7 +58,8 @@ public class MedicoPanelManager extends AbstractPanelManager {
                 medico.getTelefono(),
                 medico.getEmail(),
                 medico.getEspecialidad(),
-                medico.getValorConsulta()
+                medico.getValorConsulta(),
+                medico.getConsultorio()
             });
         }
     }
@@ -100,10 +101,11 @@ public class MedicoPanelManager extends AbstractPanelManager {
             String email = (String) tableModel.getValueAt(selectedRow, 4);
             String especialidad = (String) tableModel.getValueAt(selectedRow, 5);
             double valorConsulta = (double) tableModel.getValueAt(selectedRow, 6);
+            int consultorio = (int) tableModel.getValueAt(selectedRow, 7);
 
-            agregarMedicoUI.setFormData(id, nombreApellido, dni, telefono, email, especialidad, valorConsulta);
-            modificarMedicoUI.setFormData(id, nombreApellido, dni, telefono, email, especialidad, valorConsulta);
-            eliminarMedicoUI.setFormData(id, nombreApellido, dni, telefono, email, especialidad, valorConsulta);
+            agregarMedicoUI.setFormData(id, nombreApellido, dni, telefono, email, especialidad, valorConsulta, consultorio);
+            modificarMedicoUI.setFormData(id, nombreApellido, dni, telefono, email, especialidad, valorConsulta, consultorio);
+            eliminarMedicoUI.setFormData(id, nombreApellido, dni, telefono, email, especialidad, valorConsulta, consultorio);
         }
     }
 }

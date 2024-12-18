@@ -18,6 +18,7 @@ public class ModificarMedicoUI extends JPanel {
     private JTextField emailField;
     private JTextField especialidadField;
     private JTextField valorConsultaField;
+    private JTextField consultorioField;
     
     public ModificarMedicoUI(MedicoService medicoService, MedicoPanelManager panelManager) {
         this.medicoService = medicoService;
@@ -28,7 +29,7 @@ public class ModificarMedicoUI extends JPanel {
     private void initComponents() {
         setLayout(new BorderLayout());
         
-        JPanel formPanel = new JPanel(new GridLayout(7, 2, 5, 5));
+        JPanel formPanel = new JPanel(new GridLayout(8, 2, 5, 5));
         formPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         
         formPanel.add(new JLabel("Nombre y Apellido:"));
@@ -55,6 +56,10 @@ public class ModificarMedicoUI extends JPanel {
         valorConsultaField = new JTextField();
         formPanel.add(valorConsultaField);
         
+        formPanel.add(new JLabel("Consultorio:"));
+        consultorioField = new JTextField();
+        formPanel.add(consultorioField);
+        
         JPanel buttonPanel = new JPanel();
         JButton guardarButton = new JButton("Guardar Cambios");
         JButton cancelarButton = new JButton("Cancelar");
@@ -71,6 +76,9 @@ public class ModificarMedicoUI extends JPanel {
     
     private void modificarMedico() {
         try {
+            double valorConsulta = Double.parseDouble(valorConsultaField.getText());
+            int consultorio = Integer.parseInt(consultorioField.getText());
+            
             Medico medico = new Medico(
                 currentId,
                 nombreField.getText(),
@@ -78,21 +86,22 @@ public class ModificarMedicoUI extends JPanel {
                 telefonoField.getText(),
                 emailField.getText(),
                 especialidadField.getText(),
-                Double.parseDouble(valorConsultaField.getText())
+                valorConsulta,
+                consultorio
             );
             
             medicoService.modificar(medico);
             JOptionPane.showMessageDialog(this, "Médico modificado exitosamente");
             panelManager.mostrarPanel("mainPanel");
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "El valor de consulta debe ser un número válido");
+            JOptionPane.showMessageDialog(this, "El valor de consulta y el consultorio deben ser números válidos");
         } catch (ServiceException e) {
             JOptionPane.showMessageDialog(this, "Error al modificar médico: " + e.getMessage());
         }
     }
     
     public void setFormData(int id, String nombre, String dni, String telefono, String email, 
-                          String especialidad, double valorConsulta) {
+                          String especialidad, double valorConsulta, int consultorio) {
         this.currentId = id;
         nombreField.setText(nombre);
         dniField.setText(dni);
@@ -100,5 +109,6 @@ public class ModificarMedicoUI extends JPanel {
         emailField.setText(email);
         especialidadField.setText(especialidad);
         valorConsultaField.setText(String.valueOf(valorConsulta));
+        consultorioField.setText(String.valueOf(consultorio));
     }
 } 
