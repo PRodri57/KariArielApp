@@ -24,7 +24,9 @@ public class Turno {
         this.paciente = paciente;
         this.estado = estado;
         this.medicoId = medico.getId();
-        this.pacienteId = paciente.getId();
+        if (paciente != null) {
+            this.pacienteId = paciente.getId();
+        }
     }
 
     // Getters y Setters

@@ -59,7 +59,7 @@ public class ConsultarTurnosUI extends JPanel {
                 turnos = turnoService.obtenerTodosPorMedico(id);
             } else {
                 // Si es un paciente
-                turnos = turnoService.obtenerTodosPorPaciente(id);
+                turnos = turnoService.obtenerTurnosPorPaciente(id);
             }
             actualizarTabla(turnos);
         } catch (ServiceException e) {

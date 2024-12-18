@@ -86,6 +86,10 @@ public class MainMenuUI {
             // Botones de médico
             addButton(mainPanel, "Mis Turnos", e -> abrirMisTurnos(), gbc, 1);
             addButton(mainPanel, "Mi Reporte", e -> abrirMiReporte(), gbc, 2);
+        } else if ("PACIENTE".equals(usuarioActual.getRol())) {
+            // Botones de paciente
+            addButton(mainPanel, "Mis Turnos", e -> abrirMisTurnosPaciente(), gbc, 1);
+            addButton(mainPanel, "Solicitar Turno", e -> abrirSolicitarTurno(), gbc, 2);
         }
 
         // Botón de cerrar sesión (común para ambos roles)
@@ -173,6 +177,14 @@ public class MainMenuUI {
     }
 
     private void abrirMisTurnosPaciente() {
+        if (usuarioActual.getPacienteId() == null) {
+            JOptionPane.showMessageDialog(mainFrame, 
+                "Error: ID de paciente no encontrado", 
+                "Error", 
+                JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
         SwingUtilities.invokeLater(() -> {
             TurnoService turnoService = new TurnoServiceImpl(new TurnoDAOImpl(conexion));
             TurnosPacienteUI turnosUI = new TurnosPacienteUI(turnoService, usuarioActual.getPacienteId());
@@ -182,6 +194,14 @@ public class MainMenuUI {
     }
 
     private void abrirSolicitarTurno() {
+        if (usuarioActual.getPacienteId() == null) {
+            JOptionPane.showMessageDialog(mainFrame, 
+                "Error: ID de paciente no encontrado", 
+                "Error", 
+                JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         SwingUtilities.invokeLater(() -> {
             TurnoService turnoService = new TurnoServiceImpl(new TurnoDAOImpl(conexion));
             MedicoService medicoService = new MedicoServiceImpl(new MedicoDAOImpl(conexion));

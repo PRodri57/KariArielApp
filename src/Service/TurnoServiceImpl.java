@@ -85,7 +85,7 @@ public class TurnoServiceImpl implements TurnoService {
     }
 
     @Override
-    public List<Turno> obtenerTodosPorPaciente(int pacienteId) throws ServiceException {
+    public List<Turno> obtenerTurnosPorPaciente(int pacienteId) throws ServiceException {
         try {
             return turnoDAO.obtenerTodosPorPaciente(pacienteId);
         } catch (Exception e) {

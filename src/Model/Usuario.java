@@ -8,12 +8,13 @@ public class Usuario {
     private Integer medicoId;  // Puede ser null para admin
     private Integer pacienteId;  // Nuevo campo
 
-    public Usuario(int id, String username, String password, String rol, Integer medicoId) {
+    public Usuario(int id, String username, String password, String rol, Integer medicoId, Integer pacienteId) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.rol = rol;
         this.medicoId = medicoId;
+        this.pacienteId = pacienteId;
     }
 
     // Getters y Setters
@@ -32,11 +33,7 @@ public class Usuario {
     public Integer getMedicoId() { return medicoId; }
     public void setMedicoId(Integer medicoId) { this.medicoId = medicoId; }
 
-    public Integer getPacienteId() {
-        return pacienteId;
-    }
+    public Integer getPacienteId() { return pacienteId; }
+    public void setPacienteId(Integer pacienteId) { this.pacienteId = pacienteId; }
 
-    public void setPacienteId(Integer pacienteId) {
-        this.pacienteId = pacienteId;
-    }
 } 

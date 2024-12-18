@@ -13,6 +13,6 @@ public interface TurnoService {
     Turno obtenerPorId(int id) throws ServiceException;
     List<Turno> obtenerTodos() throws ServiceException;
     List<Turno> obtenerTurnosEntreFechas(int medicoId, Date fechaInicio, Date fechaFin) throws ServiceException;
-    List<Turno> obtenerTodosPorPaciente(int pacienteId) throws ServiceException;
+    List<Turno> obtenerTurnosPorPaciente(int pacienteId) throws ServiceException;
     List<Turno> obtenerTurnosPorFecha(Date fecha) throws ServiceException;
 } 

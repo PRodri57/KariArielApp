@@ -111,11 +111,16 @@ public class SolicitarTurnoUI extends JPanel {
                 return;
             }
 
-            Turno nuevoTurno = new Turno();
-            nuevoTurno.setMedicoId(medicoSeleccionado.getId());
+            Turno nuevoTurno = new Turno(
+                0,  // el ID será asignado por la base de datos
+                fechaSeleccionada,
+                fechaSeleccionada,
+                medicoSeleccionado,
+                null,  // el paciente se manejará por ID
+                "PENDIENTE"
+            );
+            
             nuevoTurno.setPacienteId(pacienteId);
-            nuevoTurno.setFecha(fechaSeleccionada);
-            nuevoTurno.setEstado("PENDIENTE");
 
             turnoService.agregarTurno(nuevoTurno);
             JOptionPane.showMessageDialog(this, 

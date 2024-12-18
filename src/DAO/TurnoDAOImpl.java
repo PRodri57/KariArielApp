@@ -25,8 +25,8 @@ public class TurnoDAOImpl implements TurnoDAO {
         try (PreparedStatement stmt = conexion.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setDate(1, new java.sql.Date(turno.getFecha().getTime()));
             stmt.setTime(2, new java.sql.Time(turno.getHora().getTime()));
-            stmt.setInt(3, turno.getMedico().getId());
-            stmt.setInt(4, turno.getPaciente().getId());
+            stmt.setInt(3, turno.getMedicoId());
+            stmt.setInt(4, turno.getPacienteId());
             stmt.setString(5, turno.getEstado());
             stmt.executeUpdate();
 

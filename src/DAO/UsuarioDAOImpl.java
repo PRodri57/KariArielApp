@@ -23,7 +23,8 @@ public class UsuarioDAOImpl implements UsuarioDAO {
                     rs.getString("username"),
                     rs.getString("password"),
                     rs.getString("rol"),
-                    rs.getObject("medico_id") != null ? rs.getInt("medico_id") : null
+                    rs.getObject("medico_id") != null ? rs.getInt("medico_id") : null,
+                    rs.getObject("paciente_id") != null ? rs.getInt("paciente_id") : null  // Agregamos paciente_id
                 );
             }
             return null;
@@ -84,7 +85,8 @@ public class UsuarioDAOImpl implements UsuarioDAO {
                     rs.getString("username"),
                     rs.getString("password"),
                     rs.getString("rol"),
-                    rs.getObject("medico_id") != null ? rs.getInt("medico_id") : null
+                    rs.getObject("medico_id") != null ? rs.getInt("medico_id") : null,
+                    rs.getObject("paciente_id") != null ? rs.getInt("paciente_id") : null  // Agregamos paciente_id
                 );
             }
             return null;
@@ -103,7 +105,8 @@ public class UsuarioDAOImpl implements UsuarioDAO {
                     rs.getString("username"),
                     rs.getString("password"),
                     rs.getString("rol"),
-                    rs.getInt("medico_id")
+                    rs.getInt("medico_id"),
+                    rs.getInt("paciente_id")
                 );
             }
             return null;

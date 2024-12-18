@@ -106,7 +106,7 @@ public class MedicoDAOImpl implements MedicoDAO {
 
     @Override
     public void modificar(Medico medico) throws SQLException {
-        String sql = "UPDATE medicos SET nombre_y_apellido = ?, dni = ?, telefono = ?, email = ?, especialidad = ?, matricula = ? WHERE id = ?";
+        String sql = "UPDATE medicos SET nombre_y_apellido = ?, dni = ?, telefono = ?, email = ?, especialidad = ?, valor_Consulta = ? WHERE id = ?";
         try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
             stmt.setString(1, medico.getNombreYApellido());
             stmt.setString(2, medico.getDni());

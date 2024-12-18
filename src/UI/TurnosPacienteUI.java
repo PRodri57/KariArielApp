@@ -60,7 +60,7 @@ public class TurnosPacienteUI extends JPanel {
 
     private void cargarTurnos() {
         try {
-            List<Turno> turnos = turnoService.obtenerTodosPorPaciente(pacienteId);
+            List<Turno> turnos = turnoService.obtenerTurnosPorPaciente(pacienteId);
             tableModel.setRowCount(0);
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
             SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
