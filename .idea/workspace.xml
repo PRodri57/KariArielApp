@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="51deba60-d333-42b1-b7e7-d0496f52ddc2" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/artifacts/TPFinal_jar.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/H2.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/sqldialects.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/uiDesigner.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace-DESKTOP-RDDGF0M.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/TPFinal.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/TurneraMedica.mv.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/TurneraMedica.trace.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/DAO/DAOException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/DAO/MedicoDAO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/DAO/MedicoDAOImpl.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/DAO/PacienteDAO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/DAO/PacienteDAOImpl.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/DAO/TurnoDAO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/DAO/TurnoDAOImpl.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/DAO/UsuarioDAO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/DAO/UsuarioDAOImpl.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Model/Medico.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Model/Paciente.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Model/Turno.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Model/Usuario.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Service/MedicoService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Service/MedicoServiceImpl.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Service/PacienteService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Service/PacienteServiceImpl.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Service/ServiceException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Service/TurnoService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Service/TurnoServiceImpl.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Service/UsuarioService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Service/UsuarioServiceImpl.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/UI/AbstractPanelManager.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/UI/AgregarMedicoUI.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/UI/AgregarPacienteUI.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/UI/AgregarTurnoUI.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/UI/CalendarioTurnosUI.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/UI/ConsultarReporteMedicoUI.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/UI/ConsultarTurnosUI.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/UI/EliminarMedicoUI.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/UI/EliminarPacienteUI.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/UI/EliminarTurnoUI.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/UI/LoginUI.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/UI/MainMenuUI.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/UI/MedicoPanelManager.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/UI/ModificarMedicoUI.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/UI/ModificarPacienteUI.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/UI/ModificarTurnoUI.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/UI/PacientePanelManager.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/UI/SolicitarTurnoUI.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/UI/TurnoPanelManager.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/UI/TurnosPacienteUI.java" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 0
+}</component>
+  <component name="ProjectId" id="2qSol5p5dd5iY7oPIffojksoD7g" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.GestorTurnosApp.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "CalendarManager",
+    "ignore.virus.scanning.warn.message": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Apps/SoftwareProjects/CalendarManager"
+  }
+}]]></component>
+  <component name="RunManager">
+    <configuration default="true" type="JetRunConfigurationType">
+      <module name="CalendarManager" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="51deba60-d333-42b1-b7e7-d0496f52ddc2" name="Changes" comment="" />
+      <created>1734665485265</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1734665485265</updated>
+    </task>
+    <servers />
+  </component>
+</project>
