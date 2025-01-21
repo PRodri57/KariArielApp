@@ -1,5 +1,5 @@
 from datetime import date, datetime
-from typing import List, Optional, Callable
+from typing import List, Optional
 from config.supabase_client import supabase
 from models.turno import Turno
 
@@ -7,54 +7,21 @@ class TurnoRepository:
     def __init__(self):
         self.db = supabase
 
-    def guardar(self, turno: Turno) -> Turno:
-        """Guarda un nuevo turno"""
+    def crear(self, turno_dict: dict):
+        """Crea un nuevo turno en la base de datos"""
         try:
-            result = self.db.table('turnos').insert({
-                'nombre': turno.nombre,
-                'fecha_hora': turno.fecha_hora.isoformat(),
-                'confirmado': turno.confirmado
-            }).execute()
+            result = self.db.table('turnos').insert(turno_dict).execute()
             
-            return self._map_to_turno(result.data[0])
+            if result and hasattr(result, 'data') and len(result.data) > 0:
+                return result.data[0]
+            else:
+                raise Exception("No se recibió respuesta válida de la base de datos")
+                
         except Exception as e:
-            raise ValueError(f"Error al guardar turno: {str(e)}")
+            print(f"Error en TurnoRepository.crear: {str(e)}")
+            raise
 
-    def actualizar(self, turno: Turno) -> Turno:
-        """Actualiza un turno existente"""
-        try:
-            result = self.db.table('turnos')\
-                .update({
-                    'nombre': turno.nombre,
-                    'fecha_hora': turno.fecha_hora.isoformat(),
-                    'confirmado': turno.confirmado
-                })\
-                .eq('id', turno.id)\
-                .execute()
-            
-            return self._map_to_turno(result.data[0])
-        except Exception as e:
-            raise ValueError(f"Error al actualizar turno: {str(e)}")
-
-    def eliminar(self, turno_id: str) -> None:
-        """Elimina un turno por su ID"""
-        try:
-            self.db.table('turnos').delete().eq('id', turno_id).execute()
-        except Exception as e:
-            raise ValueError(f"Error al eliminar turno: {str(e)}")
-
-    def buscar_por_id(self, turno_id: str) -> Optional[Turno]:
-        """Busca un turno por su ID"""
-        try:
-            result = self.db.table('turnos').select('*')\
-                .eq('id', turno_id)\
-                .execute()
-            
-            return self._map_to_turno(result.data[0]) if result.data else None
-        except Exception as e:
-            raise ValueError(f"Error al buscar turno: {str(e)}")
-
-    def buscar_por_fecha(self, fecha: date) -> List[Turno]:
+    def obtener_por_fecha(self, fecha: date) -> List[Turno]:
         """Busca todos los turnos para una fecha específica"""
         try:
             inicio = datetime.combine(fecha, datetime.min.time())
@@ -68,36 +35,46 @@ class TurnoRepository:
             
             return [self._map_to_turno(data) for data in result.data]
         except Exception as e:
-            raise ValueError(f"Error al buscar turnos por fecha: {str(e)}")
+            print(f"Error al buscar turnos por fecha: {str(e)}")
+            raise
 
-    def obtener_todos(self) -> List[Turno]:
-        """Obtiene todos los turnos ordenados por fecha"""
+    def actualizar(self, turno_id: str, turno: Turno) -> Turno:
+        """Actualiza un turno existente"""
         try:
-            result = self.db.table('turnos').select('*')\
-                .order('fecha_hora')\
+            turno_dict = {
+                'nombre': turno.nombre,
+                'tipo_de_reparacion': turno.tipo_de_reparacion,
+                'fecha_hora': turno.fecha_hora.isoformat(),
+                'confirmado': turno.confirmado
+            }
+            
+            result = self.db.table('turnos')\
+                .update(turno_dict)\
+                .eq('id', turno_id)\
                 .execute()
             
-            return [self._map_to_turno(data) for data in result.data]
+            if result and hasattr(result, 'data') and len(result.data) > 0:
+                return self._map_to_turno(result.data[0])
+            else:
+                raise Exception("No se pudo actualizar el turno")
         except Exception as e:
-            raise ValueError(f"Error al obtener turnos: {str(e)}")
+            print(f"Error al actualizar turno: {str(e)}")
+            raise
 
-    def suscribir_cambios(self, callback: Callable) -> None:
-        """
-        Método simplificado que actualiza los datos cada vez que se llama
-        en lugar de usar realtime
-        """
+    def eliminar(self, turno_id: str) -> None:
+        """Elimina un turno por su ID"""
         try:
-            result = self.db.table('turnos').select('*').execute()
-            turnos = [self._map_to_turno(data) for data in result.data]
-            callback({'data': turnos})
+            self.db.table('turnos').delete().eq('id', turno_id).execute()
         except Exception as e:
-            print(f"Error al obtener cambios: {e}")
+            print(f"Error al eliminar turno: {str(e)}")
+            raise
 
     def _map_to_turno(self, data: dict) -> Turno:
-        """Convierte un diccionario de Supabase a objeto Turno"""
+        """Convierte un diccionario de la base de datos a objeto Turno"""
         return Turno(
             id=data['id'],
             nombre=data['nombre'],
+            tipo_de_reparacion=data['tipo_de_reparacion'],
             fecha_hora=datetime.fromisoformat(data['fecha_hora']),
             confirmado=data['confirmado']
-        ) 
+        )

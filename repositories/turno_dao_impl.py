@@ -9,31 +9,22 @@ from db_config import SessionLocal
 import threading
 import time
 import asyncio
-from websockets.turno_websocket import TurnoWebSocket
+#from websockets.turno_websocket import TurnoWebSocket
 
 class TurnoDAOImpl(TurnoDAO):
     def __init__(self):
         self.db = SessionLocal()
-        self.websocket = TurnoWebSocket()
-        # Iniciar servidor WebSocket en un thread separado
-        self.loop = asyncio.new_event_loop()
-        threading.Thread(target=self._run_websocket_server, daemon=True).start()
-
-    def _run_websocket_server(self):
-        asyncio.set_event_loop(self.loop)
-        import uvicorn
-        uvicorn.run(self.websocket.app, host="127.0.0.1", port=8000)
-
-    def __del__(self):
-        self.detener_escucha()
-        self.db.close()
+        self._listeners = {}
+        self._running = False
+        self._polling_thread = None
 
     def guardar(self, turno: Turno) -> None:
         try:
             self.db.add(turno)
             self.db.commit()
             self.db.refresh(turno)
-            self._notificar_cambios(turno.fecha_hora.date())
+            if hasattr(self, '_listeners'):
+                self._notificar_cambios(turno.fecha_hora.date())
         except Exception as e:
             self.db.rollback()
             raise ValueError(f"Error al guardar turno: {str(e)}")

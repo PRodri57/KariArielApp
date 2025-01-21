@@ -1,5 +1,5 @@
 import sys
-import customtkinter as ctk
+#import customtkinter as ctk
 from config.supabase_client import supabase, get_current_user
 from views.calendario_view import CalendarioView
 from services.turno_service import TurnoService
@@ -8,8 +8,8 @@ from views.login_view import LoginDialog
 
 class GestorTurnosApp:
     def __init__(self):
-        ctk.set_appearance_mode("dark")  # Tema oscuro
-        ctk.set_default_color_theme("blue")  # Tema de color
+        #ctk.set_appearance_mode("dark")  # Tema oscuro
+        #ctk.set_default_color_theme("dark-blue")  # Tema de color
         
         self.app = None
         if not self.check_auth():
@@ -24,6 +24,7 @@ class GestorTurnosApp:
             user = get_current_user()
             if not user:
                 dialog = LoginDialog()
+                dialog.mainloop()
                 return dialog.result
             return True
         except Exception as e:
