@@ -9,8 +9,9 @@ from views.agregar_turno import AgregarTurno
 from views.eliminar_turno import EliminarTurno
 from views.modificar_turno import ModificarTurno
 
-class CalendarioView:
+class CalendarioView(UserControl):
     def __init__(self, turno_service: TurnoService):
+        super().__init__()
         self.turno_service = turno_service
         self.current_year = datetime.date.today().year
         self.current_month = datetime.date.today().month
@@ -21,77 +22,88 @@ class CalendarioView:
         self.agregar_turno = AgregarTurno(self, turno_service)
         self.eliminar_turno = EliminarTurno(self, turno_service)
         self.modificar_turno = ModificarTurno(self, turno_service)
-        
-        # Iniciar la aplicación Flet
-        ft.app(target=self.build_flet_ui)
 
-    def build_flet_ui(self, page: ft.Page):
-        self.page = page
-        page.title = "Calendario"
-        page.window_width = 1200
-        page.window_height = 800
-        page.theme_mode = ThemeMode.DARK
-        
-        # Pasar la referencia de la página a los componentes
-        self.agregar_turno.set_page(page)
-        self.eliminar_turno.set_page(page)
-        self.modificar_turno.set_page(page)
-        
-        # Crear la lista de turnos
-        self.turnos_list = ListView(
-            expand=True,
-            spacing=10,
-            padding=20,
-        )
-        
-        # Crear el calendario
-        calendar_view = self.create_calendar()
-        
-        # Crear el contenedor principal
-        main_content = Row(
-            controls=[
-                # Panel izquierdo (Calendario)
-                Container(
-                    width=400,
-                    padding=20,
-                    content=Column(
-                        controls=[
-                            calendar_view,
-                            ElevatedButton(
-                                text="Nuevo Turno",
-                                on_click=self.mostrar_dialogo_nuevo_turno,
-                                style=ButtonStyle(
-                                    color={
-                                        MaterialState.DEFAULT: colors.WHITE,
-                                    },
-                                    bgcolor={
-                                        MaterialState.DEFAULT: colors.TEAL_700,
-                                    },
+    def run(self):
+        """Inicia la aplicación Flet"""
+        def main(page: ft.Page):
+            page.title = "Gestor de Turnos"
+            page.window_width = 1200
+            page.window_height = 800
+            page.window_resizable = True
+            page.window_maximizable = True
+            page.theme_mode = ThemeMode.DARK
+            page.padding = 0
+            
+            # Establecer referencias a la página
+            self.page = page
+            self.agregar_turno.set_page(page)
+            self.eliminar_turno.set_page(page)
+            self.modificar_turno.set_page(page)
+            
+            # Crear la lista de turnos
+            self.turnos_list = ListView(
+                expand=True,
+                spacing=10,
+                padding=20,
+            )
+            
+            # Crear el calendario
+            calendar_view = self.create_calendar()
+            
+            # Crear el contenedor principal
+            main_content = Row(
+                controls=[
+                    # Panel izquierdo (Calendario)
+                    Container(
+                        width=400,
+                        padding=20,
+                        content=Column(
+                            controls=[
+                                calendar_view,
+                                ElevatedButton(
+                                    text="Nuevo Turno",
+                                    on_click=self.mostrar_dialogo_nuevo_turno,
+                                    style=ButtonStyle(
+                                        color={
+                                            MaterialState.DEFAULT: colors.WHITE,
+                                        },
+                                        bgcolor={
+                                            MaterialState.DEFAULT: colors.TEAL_700,
+                                        },
+                                    )
                                 )
-                            )
-                        ]
+                            ]
+                        )
+                    ),
+                    # Panel derecho (Lista de turnos)
+                    Container(
+                        expand=True,
+                        padding=20,
+                        content=Column(
+                            controls=[
+                                Text("Turnos del día", size=24, weight="bold"),
+                                self.turnos_list
+                            ]
+                        )
                     )
-                ),
-                # Panel derecho (Lista de turnos)
-                Container(
-                    expand=True,
-                    padding=20,
-                    content=Column(
-                        controls=[
-                            Text("Turnos del día", size=24, weight="bold"),
-                            self.turnos_list
-                        ]
-                    )
-                )
-            ]
-        )
-        
-        # Agregar el contenido a la página
-        page.add(main_content)
-        
-        # Cargar los turnos iniciales
-        self.cargar_turnos()
-        page.update()
+                ]
+            )
+            
+            # Agregar el contenido a la página
+            page.add(main_content)
+            
+            # Cargar los turnos iniciales
+            self.cargar_turnos()
+            page.update()
+
+            # Prevenir que la ventana se cierre
+            page.window_prevent_close = True
+            def window_event(e):
+                if e.data == "close":
+                    page.window_destroy()
+            page.window_event = window_event
+
+        ft.app(target=main)  # Removido view=ft.WEB_BROWSER
 
     def create_calendar(self):
         calendar_grid = Column(
