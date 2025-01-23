@@ -97,13 +97,34 @@ class CalendarioView(UserControl):
             page.update()
 
             # Prevenir que la ventana se cierre
-            page.window_prevent_close = True
+            page.window_prevent_close = False
             def window_event(e):
                 if e.data == "close":
                     page.window_destroy()
             page.window_event = window_event
 
         ft.app(target=main)  # Removido view=ft.WEB_BROWSER
+    
+    def previous_month(self, e):
+        if self.current_month == 1:
+            self.current_month = 12
+            self.current_year -= 1
+        else:
+            self.current_month -= 1
+        self.update_calendar()
+
+    def next_month(self, e):
+        if self.current_month == 12:
+            self.current_month = 1
+            self.current_year += 1
+        else:
+            self.current_month += 1
+        self.update_calendar()
+
+    def update_calendar(self):
+        calendar_view = self.create_calendar()
+        self.page.controls[0].controls[0].content.controls[0] = calendar_view
+        self.page.update()
 
     def create_calendar(self):
         calendar_grid = Column(
@@ -118,12 +139,27 @@ class CalendarioView(UserControl):
             weight="bold",
         )
 
+        month_navigation = Row(
+            alignment=MainAxisAlignment.CENTER,
+            controls=[
+                IconButton(
+                    on_click=self.previous_month,
+                    icon=ft.Icons.ARROW_BACK,
+                ),
+                month_label,
+                IconButton(
+                    on_click=self.next_month,
+                    icon=ft.Icons.ARROW_FORWARD,
+                )
+            ]
+        )
+
         month_matrix = calendar.monthcalendar(self.current_year, self.current_month)
         month_grid = Column(alignment=MainAxisAlignment.CENTER)
         month_grid.controls.append(
             Row(
                 alignment=MainAxisAlignment.CENTER,
-                controls=[month_label]
+                controls=[month_navigation]
             )
         )
 
@@ -139,7 +175,7 @@ class CalendarioView(UserControl):
                     color="white54",
                 )
             )
-            for weekday in ["Lun", "Mar", "Mie", "Jue", "Vie", "Sab", "Dom"]
+            for weekday in ["Dom", "Lun", "Mar", "Mie", "Jue", "Vie", "Sab"]
         ]
 
         month_grid.controls.append(Row(controls=weekday_labels))
@@ -252,16 +288,28 @@ class CalendarioView(UserControl):
                             Column(
                                 spacing=5,
                                 controls=[
-                                    Text(
-                                        f"{turno.fecha_hora.strftime('%H:%M')} - {turno.nombre}",
-                                        size=16,
-                                        weight=FontWeight.BOLD
+                                    Row(
+                                        alignment=MainAxisAlignment.CENTER,
+                                        controls=[
+                                            Text(
+                                                f"{turno.fecha_hora.strftime('%H:%M')} - {turno.nombre}",
+                                                size=16,
+                                                weight=FontWeight.BOLD,
+                                                color=colors.BLACK
+                                            ),
+                                            IconButton(
+                                                icon=ft.Icons.CHECK_OUTLINED,
+                                                bgcolor=colors.GREEN,
+                                                scale=0.8,
+                                                visible=turno.confirmado,
+                                            ),
+                                        ]
                                     ),
                                     Text(
                                         turno.tipo_de_reparacion,
                                         size=14,
-                                        color=colors.GREY_800
-                                    )
+                                        color=colors.BLACK
+                                    ),
                                 ]
                             ),
                             Row(
@@ -306,3 +354,23 @@ class CalendarioView(UserControl):
     def eliminar_turno(self, turno: Turno):
         if self.eliminar_turno.eliminar_turno(turno):
             self.cargar_turnos() 
+
+""" class BTNPagination(UserControl):
+    def __init__(self, txt_name, function):
+        self.txt_name = txt_name
+        self.function = function
+        super().__init__()
+
+        def build(self):
+            return IconButton(
+                content=Text(self.txt_name, size=12, weight="bold"),
+                width=56, 
+                height=28, 
+                on_click=self.function, 
+                style=ButtonStyle(
+                    shape={
+                        "": RoundedRectangleBorder(radius=6)
+                    },
+                    bgcolor={"": "teal600"}
+                )
+            ) """

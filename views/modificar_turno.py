@@ -124,7 +124,12 @@ class ModificarTurno(UserControl):
                                     self.mensaje_error_hora
                                 ]
                             )
-                        )
+                        ),
+                        Checkbox(
+                            label="Telefono reparado",
+                            value=turno.confirmado,
+                            on_change=lambda e: setattr(self.turno_actual, 'confirmado', e.control.value)
+                        ),
                     ]
                 )
             ),
