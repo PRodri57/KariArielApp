@@ -17,7 +17,8 @@ class CalendarioView(UserControl):
         self.current_month = datetime.date.today().month
         self.selected_date = datetime.date.today()
         self.selected_container = None  # Para mantener referencia al día seleccionado
-        
+        calendar.setfirstweekday(calendar.SUNDAY)
+
         # Inicializar manejadores
         self.agregar_turno = AgregarTurno(self, turno_service)
         self.eliminar_turno = EliminarTurno(self, turno_service)
@@ -45,6 +46,7 @@ class CalendarioView(UserControl):
                 expand=True,
                 spacing=10,
                 padding=20,
+                height=600,
             )
             
             # Crear el calendario
@@ -265,8 +267,10 @@ class CalendarioView(UserControl):
         colores = {
             "Pin de carga": colors.PURPLE_200,
             "Modulo": colors.RED_200,
-            "Pantalla": colors.BLUE_200,
-            "Revision": colors.GREEN_200
+            "Vidrio": colors.BLUE_200,
+            "Revision": colors.GREEN_200,
+            "Mojado": colors.ORANGE_200,
+            "Otros": colors.GREY_200,
         }
         return colores.get(tipo_servicio, colors.GREY_200)
 
@@ -354,23 +358,3 @@ class CalendarioView(UserControl):
     def eliminar_turno(self, turno: Turno):
         if self.eliminar_turno.eliminar_turno(turno):
             self.cargar_turnos() 
-
-""" class BTNPagination(UserControl):
-    def __init__(self, txt_name, function):
-        self.txt_name = txt_name
-        self.function = function
-        super().__init__()
-
-        def build(self):
-            return IconButton(
-                content=Text(self.txt_name, size=12, weight="bold"),
-                width=56, 
-                height=28, 
-                on_click=self.function, 
-                style=ButtonStyle(
-                    shape={
-                        "": RoundedRectangleBorder(radius=6)
-                    },
-                    bgcolor={"": "teal600"}
-                )
-            ) """

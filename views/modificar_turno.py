@@ -20,8 +20,10 @@ class ModificarTurno(UserControl):
         self.servicios_disponibles = [
             "Pin de carga",
             "Modulo",
-            "Pantalla",
-            "Revision"
+            "Vidrio",
+            "Revision",
+            "Mojado",
+            "Otros"
         ]
 
     def set_page(self, page):

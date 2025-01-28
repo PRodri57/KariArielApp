@@ -45,8 +45,10 @@ class AgregarTurno(UserControl):
             options=[
                 dropdown.Option("Pin de carga"),
                 dropdown.Option("Modulo"),
-                dropdown.Option("Pantalla"),
-                dropdown.Option("Revision")
+                dropdown.Option("Vidrio"),
+                dropdown.Option("Revision"),
+                dropdown.Option("Mojado"),
+                dropdown.Option("Otros")
             ],
             border_color=colors.BLUE_GREY_400
         )
