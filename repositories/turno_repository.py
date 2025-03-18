@@ -45,7 +45,8 @@ class TurnoRepository:
                 'nombre': turno.nombre,
                 'tipo_de_reparacion': turno.tipo_de_reparacion,
                 'fecha_hora': turno.fecha_hora.isoformat(),
-                'confirmado': turno.confirmado
+                'confirmado': turno.confirmado,
+                'tecnico': turno.tecnico
             }
             
             result = self.db.table('turnos')\
@@ -76,5 +77,6 @@ class TurnoRepository:
             nombre=data['nombre'],
             tipo_de_reparacion=data['tipo_de_reparacion'],
             fecha_hora=datetime.fromisoformat(data['fecha_hora']),
-            confirmado=data['confirmado']
+            confirmado=data['confirmado'],
+            tecnico=data['tecnico']
         )

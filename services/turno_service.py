@@ -6,7 +6,7 @@ from repositories.turno_repository import TurnoRepository
 class TurnoService:
     def __init__(self, turno_repository: TurnoRepository = None):
         self.turno_repository = turno_repository or TurnoRepository()
-
+    
     def agendar_turno(self, turno: Turno) -> Turno:
         """Agenda un nuevo turno verificando superposición"""
         if self.existe_superposicion(turno):
@@ -79,7 +79,8 @@ class TurnoService:
                 'nombre': turno.nombre,
                 'tipo_de_reparacion': turno.tipo_de_reparacion,
                 'fecha_hora': turno.fecha_hora.isoformat(),
-                'confirmado': turno.confirmado
+                'confirmado': turno.confirmado,
+                'tecnico': turno.tecnico
             }
             
             print(f"Enviando a BD: {turno_dict}")

@@ -74,6 +74,19 @@ class AgregarTurno(UserControl):
             border_color=colors.BLUE_GREY_400
         )
         
+        self.tecnico_dropwdown = Dropdown(
+            label="Técnico",
+            width=300,
+            height=50,
+            text_size=16,
+            options=[
+                dropdown.Option("Ariel"),
+                dropdown.Option("Maxi"),
+                dropdown.Option("Brisa")
+            ],
+            border_color=colors.BLUE_GREY_400
+        )
+
         # Contenedor para mensaje de error de hora
         self.mensaje_error_hora = Text(
             color=colors.ERROR,
@@ -97,6 +110,7 @@ class AgregarTurno(UserControl):
                     controls=[
                         self.nombre_input,
                         self.servicio_dropdown,
+                        self.tecnico_dropwdown,
                         Container(
                             content=Column(
                                 spacing=5,
@@ -192,8 +206,9 @@ class AgregarTurno(UserControl):
             # Validar campos
             nombre = self.nombre_input.value
             tipo_de_reparacion = self.servicio_dropdown.value
+            tecnico = self.tecnico_dropwdown.value
             
-            if not nombre or not tipo_de_reparacion:
+            if not nombre or not tipo_de_reparacion or not tecnico:
                 self.mostrar_mensaje(
                     "Error",
                     "Por favor, complete todos los campos",
@@ -225,6 +240,7 @@ class AgregarTurno(UserControl):
             nuevo_turno = Turno(
                 nombre=nombre,
                 tipo_de_reparacion=tipo_de_reparacion,
+                tecnico=tecnico,
                 fecha_hora=fecha_hora,
                 confirmado="false"
             )

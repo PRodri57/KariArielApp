@@ -17,7 +17,7 @@ class TurnoDAOImpl(TurnoDAO):
         self._listeners = {}
         self._running = False
         self._polling_thread = None
-
+    
     def guardar(self, turno: Turno) -> None:
         try:
             self.db.add(turno)

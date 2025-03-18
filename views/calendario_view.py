@@ -296,7 +296,7 @@ class CalendarioView(UserControl):
                                         alignment=MainAxisAlignment.CENTER,
                                         controls=[
                                             Text(
-                                                f"{turno.fecha_hora.strftime('%H:%M')} - {turno.nombre}",
+                                                f"{turno.fecha_hora.strftime('%H:%M')} - {turno.nombre} \n{turno.tecnico}",
                                                 size=16,
                                                 weight=FontWeight.BOLD,
                                                 color=colors.BLACK
