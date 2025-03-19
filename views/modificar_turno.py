@@ -51,6 +51,20 @@ class ModificarTurno(UserControl):
         # Crear dropdowns para hora y minutos
         hora_actual = turno.fecha_hora.hour
         minuto_actual = turno.fecha_hora.minute
+
+        # Dropdown para seleccionar el técnico
+        self.tecnico_dropdown = Dropdown(
+            label="Técnico",
+            width=300,
+            height=50,
+            text_size=16,
+            options=[
+                dropdown.Option("Ariel"),
+                dropdown.Option("Maxi"),
+                dropdown.Option("Brisa")
+            ],
+            border_color=colors.BLUE_GREY_400
+        )
         
         self.hora_dropdown = Dropdown(
             label="Hora",
@@ -110,6 +124,24 @@ class ModificarTurno(UserControl):
                                 spacing=5,
                                 controls=[
                                     Text(
+                                        "Tecnico",
+                                        size=16,
+                                        weight=FontWeight.BOLD
+                                    ),
+                                    Row(
+                                        spacing=10,
+                                        controls=[
+                                            self.tecnico_dropdown
+                                        ]
+                                    )
+                                ]
+                            )
+                        ),
+                        Container(
+                            content=Column(
+                                spacing=5,
+                                controls=[
+                                    Text(
                                         "Horario",
                                         size=16,
                                         weight=FontWeight.BOLD
@@ -160,7 +192,7 @@ class ModificarTurno(UserControl):
             hora = int(self.hora_dropdown.value)
             minuto = int(self.minuto_dropdown.value)
             
-            if hora < 8 or (hora == 20 and minuto > 0) or hora > 20:
+            if hora < 4 or hora > 22:
                 self.mensaje_error_hora.value = "El horario de atención es de 8:00 a 20:00"
                 self.mensaje_error_hora.visible = True
             else:
@@ -221,6 +253,7 @@ class ModificarTurno(UserControl):
 
             # Actualizar el turno
             self.turno_actual.nombre = nombre
+            self.turno_actual.tecnico = self.tecnico_dropdown.value
             self.turno_actual.tipo_de_reparacion = ", ".join(servicios_seleccionados)
             self.turno_actual.fecha_hora = datetime.combine(
                 self.turno_actual.fecha_hora.date(),

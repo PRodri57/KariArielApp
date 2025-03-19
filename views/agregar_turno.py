@@ -74,7 +74,7 @@ class AgregarTurno(UserControl):
             border_color=colors.BLUE_GREY_400
         )
         
-        self.tecnico_dropwdown = Dropdown(
+        self.tecnico_dropdown = Dropdown(
             label="Técnico",
             width=300,
             height=50,
@@ -110,7 +110,7 @@ class AgregarTurno(UserControl):
                     controls=[
                         self.nombre_input,
                         self.servicio_dropdown,
-                        self.tecnico_dropwdown,
+                        self.tecnico_dropdown,
                         Container(
                             content=Column(
                                 spacing=5,
@@ -206,7 +206,7 @@ class AgregarTurno(UserControl):
             # Validar campos
             nombre = self.nombre_input.value
             tipo_de_reparacion = self.servicio_dropdown.value
-            tecnico = self.tecnico_dropwdown.value
+            tecnico = self.tecnico_dropdown.value
             
             if not nombre or not tipo_de_reparacion or not tecnico:
                 self.mostrar_mensaje(
