@@ -4,73 +4,67 @@ from view.frames.turnos_frame import TurnosFrame
 from view.frames.clientes_frame import ClientesFrame
 from view.frames.presupuesto_frame import PresupuestoFrame
 from view.components.sidebar import Sidebar
-import util.util_ventana as util_ventana
-import util.util_imagenes as util_imagenes
+import utils.util_ventana as util_ventana
 
-#------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#!!Funciones
-def mostrar_home():
-    ocultar_todos_los_frames()
-    home_frame.pack(expand=True, fill="both")
 
-def mostrar_turnos():
-    ocultar_todos_los_frames()
-    turnos_frame = TurnosFrame(contenedor)
-    turnos_frame.pack(expand=True, fill="both")
+class AppPrincipal(ctk.CTk):
+    def __init__(self):
+        super().__init__()
 
-def mostrar_clientes():
-    ocultar_todos_los_frames()
-    clientes_frame = ClientesFrame(contenedor)
-    clientes_frame.pack(expand=True, fill="both")
+        # Configuración básica de la ventana
+        self.title("KariAriel")
+        self.iconbitmap("assets/icono.ico")
+        ctk.set_appearance_mode("dark")
 
-def mostrar_presupuesto():
-    ocultar_todos_los_frames()
-    presupuesto_frame = PresupuestoFrame(contenedor)
-    presupuesto_frame.pack(expand=True, fill="both")
+        w, h = 1366, 768
+        util_ventana.centrar_ventana(self, w, h)
 
-def ocultar_todos_los_frames():
-    for widget in contenedor.winfo_children():
-        widget.grid_forget()
-        widget.pack_forget()
+        # Layout grid
+        self.grid_columnconfigure(0, weight=0)  # Sidebar
+        self.grid_columnconfigure(1, weight=1)  # Contenedor
+        self.grid_rowconfigure(0, weight=1)
 
-def animar_texto(texto, label, i=0):
-    if i <= len(texto):
-        label.configure(text=texto[:i])
-        label.after(5, animar_texto, texto, label, i+1)
-#------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#!!Configuraciones de la ventana
-app = ctk.CTk()
-w, h = 1366, 768
-util_ventana.centrar_ventana(app, w, h) #Centrar ventana
-ctk.set_appearance_mode("dark")
-app.title("KariAriel")
-app.iconbitmap("assets/icono.ico")
+        # Sidebar
+        self.sidebar = Sidebar(
+            master=self,
+            callback_dict={
+                "inicio": self.mostrar_home,
+                "turnos": self.mostrar_turnos,
+                "clientes": self.mostrar_clientes,
+                "presupuesto": self.mostrar_presupuesto
+            }
+        )
+        self.sidebar.grid(row=0, column=0, sticky="ns")
+        self.sidebar.grid_propagate(True)
 
-#------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#!!Configuraciones
-app.grid_columnconfigure(0, weight=0) #Sidebar
-app.grid_columnconfigure(1, weight=1) #Contenedor principal
-app.grid_rowconfigure(0, weight=1)
+        # Contenedor principal
+        self.contenedor = ctk.CTkFrame(self, fg_color="transparent")
+        self.contenedor.grid(row=0, column=1, sticky="nsew")
 
-#Sidebar
-sidebar = Sidebar(
-    master=app,
-    callback_dict={
-        "inicio": mostrar_home,
-        "turnos": mostrar_turnos,
-        "clientes": mostrar_clientes,
-        "presupuesto": mostrar_presupuesto
-    }
-)
-sidebar.grid(row=0, column=0, sticky="ns")
-sidebar.grid_propagate(True)
+        # Frame inicial
+        self.mostrar_home()
 
-#Contenedor principal
-contenedor = ctk.CTkFrame(app, fg_color="transparent")
-contenedor.grid(row=0, column=1, sticky="nsew")
+    def _mostrar_frame(self, frame_class):
+        """Muestra un frame específico en el contenedor."""
+        # Limpiar contenedor
+        for widget in self.contenedor.winfo_children():
+            widget.destroy()
 
-# Crear el frame de inicio
-home_frame = HomeFrame(contenedor, on_enter=mostrar_turnos)
-home_frame.pack(expand=True, fill="both")
-#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-app.mainloop()
+        # Crear y mostrar el nuevo frame
+        if callable(frame_class):
+            frame = frame_class(self.contenedor)
+        else:
+            frame = frame_class(self.contenedor, on_enter=self.mostrar_turnos)
+        frame.pack(expand=True, fill="both")
+
+    def mostrar_home(self):
+        self._mostrar_frame(lambda master: HomeFrame(master, on_enter=self.mostrar_turnos))
+
+    def mostrar_turnos(self):
+        self._mostrar_frame(TurnosFrame)
+
+    def mostrar_clientes(self):
+        self._mostrar_frame(ClientesFrame)
+
+    def mostrar_presupuesto(self):
+        self._mostrar_frame(PresupuestoFrame)

@@ -1,6 +1,6 @@
 import customtkinter as ctk
 from PIL import Image
-import util.util_imagenes as util_imagenes
+import utils.util_imagenes as util_imagenes
 
 class Sidebar(ctk.CTkFrame):
     def __init__(self, master, callback_dict, **kwargs):
