@@ -42,7 +42,14 @@ class TurnosFrame(ctk.CTkFrame):
         self.cargar_turnos(fecha.isoformat())
 
     def abrir_formulario_nuevo_turno(self):
-        dialog = AgregarTurnoDialog(self.winfo_toplevel())
+        def guardar_en_bd(datos_turno):
+            from config.db_queries import crear_turno
+            resultado = crear_turno(datos_turno)
+            if resultado:
+                print("Turno guardado exitosamente en la base de datos:", resultado)
+            else:
+                print("Error: No se pudo guardar el turno en la base de datos.")
+        dialog = AgregarTurnoDialog(self.winfo_toplevel(), on_save=guardar_en_bd)
         self.wait_window(dialog)
         self.cargar_turnos()
 

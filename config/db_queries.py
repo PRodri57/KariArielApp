@@ -4,6 +4,7 @@ from config.supabase_client import supabase
 def crear_turno(data):
     try:
         respuesta = supabase.table('turnos_v2').insert(data).execute()
+        print("Se creo el turno correctamente")
         return respuesta.data
     except Exception as e:
         print(f"Error al crear turno: {e}")
@@ -50,12 +51,12 @@ def crear_cliente(data):
         print(f"Error al crear cliente: {e}")
         return None
 
-def obtener_cliente(dni):
+def obtener_cliente(dni_partial: str, limit: int = 5):
     try:
-        respuesta = supabase.table('clientes').select('*').eq('dni', dni).execute()
+        respuesta = supabase.table('clientes').select('*').eq('dni', int(dni_partial)).limit(limit).execute()
         return respuesta.data
     except Exception as e:
-        print(f"Error al obtener cliente: {e}")
+        print(f"Error buscando clientes: {e}")
         return None
 
 def actualizar_cliente(dni, data):
