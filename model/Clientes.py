@@ -3,10 +3,10 @@ from typing import Optional
 class Cliente:
     CAMPOS_OBLIGATORIOS = ["dni", "nombre_apellido"]
 
-    def __init__(self, dni: str, nombre_apellido: str, telefono: Optional[str] = None, email: Optional[str] = None, direccion: Optional[str] = None):
+    def __init__(self, dni: int, nombre_apellido: str, telefono: Optional[str] = None, email: Optional[str] = None, direccion: Optional[str] = None):
         if not dni or not nombre_apellido:
             raise ValueError("DNI y nombre/apellido son obligatorios.")
-        self.dni = str(dni)
+        self.dni = int(dni)  # Mantener como int
         self.nombre_apellido = nombre_apellido
         self.telefono = telefono or ""
         self.email = email or ""
@@ -14,8 +14,13 @@ class Cliente:
 
     @classmethod
     def from_dict(cls, datos):
+        # Obtener DNI como int desde la BD
+        dni = datos.get("dni")
+        if dni is not None:
+            dni = int(dni)
+        
         return cls(
-            dni=datos.get("dni"),
+            dni=dni,
             nombre_apellido=datos.get("nombre_apellido") or datos.get("nombre") or datos.get("nombre_apelllido"),
             telefono=datos.get("telefono"),
             email=datos.get("email"),
@@ -24,7 +29,7 @@ class Cliente:
 
     def to_dict(self):
         return {
-            "dni": self.dni,
+            "dni": self.dni,  # Ya es int
             "nombre_apellido": self.nombre_apellido,
             "telefono": self.telefono,
             "email": self.email,

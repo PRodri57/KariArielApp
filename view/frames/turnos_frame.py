@@ -14,7 +14,7 @@ class TurnosFrame(ctk.CTkFrame):
         self.contenedor_secundario = ctk.CTkFrame(self, fg_color="#252525", border_color="#252525")
 
         btn_nuevo_turno = ctk.CTkButton(
-            self, text="➕ Nuevo Turno", width=150,
+            self, text="Nuevo Turno", width=150,
             command=self.abrir_formulario_nuevo_turno)
         btn_nuevo_turno.pack(pady=10, padx=10, anchor="ne")
 

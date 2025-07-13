@@ -51,15 +51,51 @@ def crear_cliente(data):
         print(f"Error al crear cliente: {e}")
         return None
 
-def obtener_cliente(dni_partial: str, limit: int = 5):
+def obtener_cliente(dni: int, limit: int = 5):
+    """Obtiene un cliente específico por DNI exacto"""
     try:
-        respuesta = supabase.table('clientes').select('*').eq('dni', int(dni_partial)).limit(limit).execute()
+        respuesta = supabase.table('clientes').select('*').eq('dni', dni).limit(limit).execute()
         return respuesta.data
     except Exception as e:
-        print(f"Error buscando clientes: {e}")
+        print(f"Error buscando cliente: {e}")
         return None
 
-def actualizar_cliente(dni, data):
+def obtener_todos_los_clientes():
+    try:
+        respuesta = supabase.table('clientes').select('*').execute()
+        return respuesta.data
+    except Exception as e:
+        print(f"Error obteniendo todos los clientes: {e}")
+        return None
+
+def buscar_clientes_por_dni(dni_partial: int, limit: int = 10):
+    """Busca clientes por DNI parcial (search-as-you-type)"""
+    try:
+        if dni_partial is None or dni_partial < 0:
+            return []
+        
+        # Para búsqueda parcial con int8, usamos búsqueda por rango
+        # Si ingresamos "123", buscamos DNIs >= 123
+        respuesta = supabase.table('clientes').select('*').gte('dni', dni_partial).limit(limit).execute()
+        
+        # Filtrar resultados para que empiecen exactamente con el número ingresado
+        resultados_filtrados = []
+        dni_str = str(dni_partial)
+        
+        for cliente in respuesta.data:
+            cliente_dni_str = str(cliente['dni'])
+            if cliente_dni_str.startswith(dni_str):
+                resultados_filtrados.append(cliente)
+        
+        return resultados_filtrados
+            
+    except Exception as e:
+        print(f"Error buscando clientes por DNI: {e}")
+        return []
+
+
+
+def actualizar_cliente(dni: int, data):
     try:
         respuesta = supabase.table('clientes').update(data).eq('dni', dni).execute()
         return respuesta.data
@@ -67,7 +103,7 @@ def actualizar_cliente(dni, data):
         print(f"Error al actualizar cliente: {e}")
         return None
 
-def eliminar_cliente(dni):
+def eliminar_cliente(dni: int):
     try:
         respuesta = supabase.table('clientes').delete().eq('dni', dni).execute()
         return respuesta.data

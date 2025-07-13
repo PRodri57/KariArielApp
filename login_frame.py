@@ -112,13 +112,13 @@ class AuthApp(ctk.CTk):
         ctk.CTkLabel(self.contenedor, text="Crear Cuenta", font=("Arial", 20)).pack(pady=20)
 
         self.entry_email_signup = ctk.CTkEntry(self.contenedor, placeholder_text="Email")
-        self.entry_email_signup.pack(pady=10)
+        self.entry_email_signup.pack(pady=10, fill="x", padx=40)
 
         self.entry_pass_signup = ctk.CTkEntry(self.contenedor, placeholder_text="Contraseña", show="*")
-        self.entry_pass_signup.pack(pady=10)
+        self.entry_pass_signup.pack(pady=10, fill="x", padx=40)
 
         self.entry_pass_confirm = ctk.CTkEntry(self.contenedor, placeholder_text="Confirmar Contraseña", show="*")
-        self.entry_pass_confirm.pack(pady=10)
+        self.entry_pass_confirm.pack(pady=10, fill="x", padx=40)
 
         ctk.CTkButton(self.contenedor, text="Registrar", command=self.signup).pack(pady=10)
         ctk.CTkButton(self.contenedor, text="Volver al Inicio de Sesión", fg_color="transparent",
