@@ -7,6 +7,8 @@ class ModernCalendar(ctk.CTkFrame):
         super().__init__(parent, **kwargs)
         self.on_select = on_select  # Callback al hacer click en una fecha
         self.fecha_actual = datetime.now()
+        self.day_buttons = {}
+        self.selected_day = None
 
         self.configure(fg_color="transparent")
         self.build_ui()
@@ -42,6 +44,8 @@ class ModernCalendar(ctk.CTkFrame):
         for widget in self.dias_frame.winfo_children():
             widget.destroy()
 
+        self.day_buttons = {}
+
         year = self.fecha_actual.year
         month = self.fecha_actual.month
 
@@ -71,29 +75,50 @@ class ModernCalendar(ctk.CTkFrame):
                     command=lambda d=dia: self.seleccionar_fecha(d)
                 )
                 btn.grid(row=fila, column=columna, padx=2, pady=2)
+                self.day_buttons[dia] = btn
             else:
                 # Espacio vacío
                 ctk.CTkLabel(self.dias_frame, text="", width=50).grid(
                     row=fila, column=columna, padx=2, pady=2
                 )
 
+        # Selección por defecto: día actual si el mes/año coinciden con hoy
+        hoy = datetime.now()
+        if (self.fecha_actual.year == hoy.year and self.fecha_actual.month == hoy.month):
+            if self.selected_day is None:
+                self.selected_day = hoy.day
+
+        self._apply_selection_style()
+
     def mes_anterior(self):
         self.fecha_actual -= timedelta(days=1)
         self.fecha_actual = datetime(self.fecha_actual.year, self.fecha_actual.month, 1)
+        self.selected_day = None
         self.update_calendar()
 
     def mes_siguiente(self):
         next_month = self.fecha_actual.replace(day=28) + timedelta(days=4)
         self.fecha_actual = datetime(next_month.year, next_month.month, 1)
+        self.selected_day = None
         self.update_calendar()
 
     def seleccionar_fecha(self, dia):
+        self.selected_day = dia
+        self._apply_selection_style()
         fecha_seleccionada = datetime(self.fecha_actual.year, self.fecha_actual.month, dia)
         if self.on_select:
             self.on_select(fecha_seleccionada)
 
     def get_date(self):
         return self.fecha_actual.strftime("%Y-%m-%d")
+
+    def _apply_selection_style(self):
+        """Actualiza el estilo visual del día seleccionado."""
+        for d, btn in self.day_buttons.items():
+            if d == self.selected_day:
+                btn.configure(fg_color="#0A84FF", hover_color="#0A84FF", text_color="white")
+            else:
+                btn.configure(fg_color="transparent", hover_color="#005F9E")
 
 # Si quieres probarlo directamente:
 if __name__ == "__main__":

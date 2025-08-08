@@ -51,15 +51,6 @@ def crear_cliente(data):
         print(f"Error al crear cliente: {e}")
         return None
 
-def obtener_cliente(dni: int, limit: int = 5):
-    """Obtiene un cliente específico por DNI exacto"""
-    try:
-        respuesta = supabase.table('clientes').select('*').eq('dni', dni).limit(limit).execute()
-        return respuesta.data
-    except Exception as e:
-        print(f"Error buscando cliente: {e}")
-        return None
-
 def obtener_todos_los_clientes():
     try:
         respuesta = supabase.table('clientes').select('*').execute()

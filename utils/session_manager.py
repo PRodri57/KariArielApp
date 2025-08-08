@@ -4,8 +4,8 @@ creds_manager = CredentialsManager()
 
 def guardar_sesion(email: str):
     """Solo guardamos el email temporalmente"""
-    from mainGUI import AppPrincipal
-    AppPrincipal.email_guardado = email
+    from mainGUI_qt import AppPrincipalQt
+    AppPrincipalQt.email_guardado = email
 
 def cargar_sesion():
     """Carga las credenciales completas desde el manager"""
