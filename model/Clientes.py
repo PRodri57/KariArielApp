@@ -1,13 +1,13 @@
 from typing import Optional
 
 class Cliente:
-    CAMPOS_OBLIGATORIOS = ["dni", "nombre_apellido"]
+    CAMPOS_OBLIGATORIOS = ["dni"]
 
     def __init__(self, dni: int, nombre_apellido: str, telefono: Optional[str] = None, email: Optional[str] = None, direccion: Optional[str] = None):
-        if not dni or not nombre_apellido:
-            raise ValueError("DNI y nombre/apellido son obligatorios.")
+        if not dni:
+            raise ValueError("DNI es obligatorio.")
         self.dni = int(dni)  # Mantener como int
-        self.nombre_apellido = nombre_apellido
+        self.nombre_apellido = nombre_apellido or "Sin nombre"
         self.telefono = telefono or ""
         self.email = email or ""
         self.direccion = direccion or ""

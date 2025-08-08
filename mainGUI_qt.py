@@ -15,6 +15,7 @@ from PySide6.QtWidgets import (
 import sys
 from view.frames.turnos_page_qt import TurnosPage
 from view.frames.clientes_page_qt import ClientesPage
+from view.frames.telefonos_page_qt import TelefonosPage
 
 
 def apply_dark_palette(app: QApplication) -> None:
@@ -55,8 +56,9 @@ class Sidebar(QFrame):
         self.btn_turnos = self._create_nav_button("Turnos", "turnos")
         self.btn_clientes = self._create_nav_button("Clientes", "clientes")
         self.btn_presupuesto = self._create_nav_button("Presupuesto", "presupuesto")
+        self.btn_telefonos = self._create_nav_button("Teléfonos", "telefonos")
 
-        for btn in [self.btn_inicio, self.btn_turnos, self.btn_clientes, self.btn_presupuesto]:
+        for btn in [self.btn_inicio, self.btn_turnos, self.btn_clientes, self.btn_presupuesto, self.btn_telefonos]:
             layout.addWidget(btn)
 
         layout.addStretch(1)
@@ -158,12 +160,14 @@ class AppPrincipalQt(QMainWindow):
         self.page_turnos = TurnosPage()
         self.page_clientes = ClientesPage()
         self.page_presupuesto = SimplePage("Presupuesto")
+        self.page_telefonos = TelefonosPage()
 
         self.page_key_to_index = {
             "inicio": self.stacked.addWidget(self.page_home),
             "turnos": self.stacked.addWidget(self.page_turnos),
             "clientes": self.stacked.addWidget(self.page_clientes),
             "presupuesto": self.stacked.addWidget(self.page_presupuesto),
+            "telefonos": self.stacked.addWidget(self.page_telefonos),
         }
 
         # Conexiones

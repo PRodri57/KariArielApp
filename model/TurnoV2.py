@@ -6,12 +6,13 @@ class TurnoV2:
     """
     CAMPOS_OBLIGATORIOS = ["dni", "tipo_servicio", "fecha_ingreso"]
 
-    def __init__(self, numero_orden=None, dni=None, tipo_servicio=None, tecnico=None, fecha_ingreso=None, descripcion=None, presupuesto=0.0, sena=0.0, sena_revision=0.0, garantia=0, fecha_reparacion=None, fecha_retiro=None, comentario_turno=None):
+    def __init__(self, numero_orden=None, dni=None, telefono_id=None, tipo_servicio=None, tecnico=None, fecha_ingreso=None, descripcion=None, presupuesto=0.0, sena=0.0, sena_revision=0.0, garantia=0, fecha_reparacion=None, fecha_retiro=None, comentario_turno=None):
         if dni is None or tipo_servicio is None or fecha_ingreso is None:
             raise ValueError("DNI, tipo_servicio y fecha_ingreso son obligatorios.")
 
         self.numero_orden = numero_orden
         self.dni = str(dni)
+        self.telefono_id = telefono_id
         self.tipo_servicio = tipo_servicio
         self.tecnico = tecnico or ""
         self.fecha_ingreso = self._parse_fecha(fecha_ingreso)
@@ -46,6 +47,7 @@ class TurnoV2:
         return cls(
             numero_orden=datos.get("numero_orden"),
             dni=datos.get("dni"),
+            telefono_id=datos.get("telefono_id"),
             tipo_servicio=datos.get("servicio") or datos.get("tipo_servicio"),
             tecnico=datos.get("tecnico"),
             fecha_ingreso=datos.get("fecha_ingreso"),
@@ -66,6 +68,7 @@ class TurnoV2:
         return {
             "numero_orden": self.numero_orden,
             "dni": self.dni,
+            "telefono_id": self.telefono_id,
             "tipo_servicio": self.tipo_servicio,
             "tecnico": self.tecnico,
             "fecha_ingreso": self.fecha_ingreso.strftime("%Y-%m-%d") if self.fecha_ingreso else None,

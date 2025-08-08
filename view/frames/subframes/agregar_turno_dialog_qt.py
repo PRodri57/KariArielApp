@@ -22,6 +22,7 @@ from PySide6.QtWidgets import (
 from config.db_queries import buscar_clientes_por_dni
 from model.TurnoV2 import TurnoV2
 from utils.search_as_you_type_qt import SearchAsYouTypeQt
+from view.frames.subframes.seleccionar_cliente_dialog_qt import SeleccionarClienteDialogQt
 
 
 class AgregarTurnoDialogQt(QDialog):
@@ -153,27 +154,74 @@ class AgregarTurnoDialogQt(QDialog):
 
     # ---------- AUTOCOMPLETADO DNI (utilidad compartida) ----------
     def _buscar_cliente(self, term: str) -> List[dict]:
+        print(f"DEBUG: _buscar_cliente llamado con término: '{term}'")
         try:
             dni_int = int(term)
+            print(f"DEBUG: DNI convertido a int: {dni_int}")
         except ValueError:
+            print(f"DEBUG: Error convirtiendo '{term}' a int")
             return []
-        return buscar_clientes_por_dni(dni_int) or []
+        
+        resultados = buscar_clientes_por_dni(dni_int) or []
+        print(f"DEBUG: Resultados de búsqueda: {len(resultados)} clientes")
+        return resultados
 
     def _on_cliente_results(self, clientes: List[dict], term: str) -> None:
+        print(f"DEBUG: _on_cliente_results llamado con {len(clientes)} clientes, término: '{term}'")
         # Aún no se alcanzó el mínimo: limpiar estado y salir
         if len(term) < 4:
+            print("DEBUG: Término muy corto, limpiando estado")
             self.status_label.setText("")
             return
         if term != self.entry_dni.text().strip():
+            print("DEBUG: Término cambió, ignorando resultados")
             return
         if not clientes:
+            print("DEBUG: No se encontraron clientes")
             self.status_label.setText("No se encontraron clientes")
             return
-        # Priorizar coincidencia exacta del DNI si existe
-        cliente = next((c for c in clientes if str(c.get("dni")) == term), clientes[0])
+        
+        # Siempre mostrar diálogo de selección, incluso con un solo cliente
+        print(f"DEBUG: Mostrando diálogo de selección con {len(clientes)} cliente(s)")
+        self.status_label.setText(f"Se encontraron {len(clientes)} cliente(s). Selecciona uno...")
+        self._mostrar_dialogo_seleccion(clientes, term)
+    
+    def _mostrar_dialogo_seleccion(self, clientes: List[dict], term: str) -> None:
+        """Muestra el diálogo de selección de cliente"""
+        dialog = SeleccionarClienteDialogQt(self, clientes, term)
+        if dialog.exec() == QDialog.Accepted:
+            cliente_seleccionado = dialog.get_selected_cliente()
+            if cliente_seleccionado:
+                print(f"DEBUG: Cliente seleccionado del diálogo: {cliente_seleccionado.get('nombre_apellido', 'Sin nombre')}")
+                self._seleccionar_cliente(cliente_seleccionado)
+            else:
+                print("DEBUG: No se seleccionó ningún cliente")
+                self.status_label.setText("No se seleccionó ningún cliente")
+        else:
+            print("DEBUG: Diálogo cancelado")
+            self.status_label.setText("Selección cancelada")
+    
+    def _seleccionar_cliente(self, cliente: dict) -> None:
+        """Selecciona un cliente y actualiza los campos del formulario"""
         self.selected_cliente = cliente
+        
+        # Llenar automáticamente todos los campos disponibles
         self.entry_nombre.setText(cliente.get("nombre_apellido", ""))
-        self.status_label.setText(f"Cliente: {cliente.get('nombre_apellido', '')}")
+        
+        # Teléfono
+        if cliente.get("telefono"):
+            self.entry_telefono.setText(cliente.get("telefono", ""))
+        
+        # Email (si agregamos un campo de email en el futuro)
+        # if cliente.get("email"):
+        #     self.entry_email.setText(cliente.get("email", ""))
+        
+        # Dirección (si agregamos un campo de dirección en el futuro)
+        # if cliente.get("direccion"):
+        #     self.entry_direccion.setText(cliente.get("direccion", ""))
+        
+        self.status_label.setText(f"Cliente seleccionado: {cliente.get('nombre_apellido', '')}")
+        print(f"DEBUG: Cliente seleccionado y campos llenados: {cliente.get('nombre_apellido', 'Sin nombre')}")
 
     # ---------- CALENDARIO ----------
     def _abrir_calendario(self) -> None:
@@ -199,7 +247,7 @@ class AgregarTurnoDialogQt(QDialog):
             datos = self._collect_form_data()
             turno = TurnoV2.from_dict(datos)
         except Exception as e:
-            QMessageBox.critical(self, "Error", f"Datos inválidos: {e}")
+            QMessageBox(self, "Error", f"Datos inválidos: {e}")
             return
 
         if self.on_save:
@@ -238,7 +286,7 @@ class AgregarTurnoDialogQt(QDialog):
         datos = {
             "numero_orden": numero_orden_val,
             "dni": dni_val,
-            "telefono_id": self.entry_telefono.text().strip(),
+            "telefono_texto": self.entry_telefono.text().strip(),
             "nombre": self.entry_nombre.text().strip(),
             "servicio": self.combo_servicio.currentText(),
             "fecha_ingreso": self.entry_fecha.text().strip(),

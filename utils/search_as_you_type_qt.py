@@ -3,7 +3,7 @@ from __future__ import annotations
 import threading
 from typing import Callable, Optional, Any
 
-from PySide6.QtCore import QTimer
+from PySide6.QtCore import QTimer, QMetaObject, Qt
 from PySide6.QtWidgets import QLineEdit
 
 
@@ -63,29 +63,39 @@ class SearchAsYouTypeQt:
 
     def _on_timeout(self) -> None:
         term = self._last_term
+        print(f"DEBUG: SearchAsYouTypeQt._on_timeout llamado con término: '{term}', min_chars: {self._min_chars}")
         if len(term) < self._min_chars:
+            print(f"DEBUG: Término '{term}' es muy corto (longitud: {len(term)})")
             # Consideramos "sin término suficiente" como resultado vacío inmediato
             self._deliver_results(term, [])
             return
 
+        print(f"DEBUG: Ejecutando búsqueda para término: '{term}'")
         self._active_query_id += 1
         query_id = self._active_query_id
 
-        def worker() -> None:
-            try:
-                results = self._search_callable(term)
-            except Exception as exc:  # noqa: BLE001
-                self._deliver_error(term, exc, query_id)
-                return
-            self._deliver_results(term, results, query_id)
-
-        threading.Thread(target=worker, daemon=True).start()
+        # Ejecutar búsqueda directamente en el hilo principal
+        try:
+            results = self._search_callable(term)
+            print(f"DEBUG: SearchAsYouTypeQt obtuvo {len(results) if results else 0} resultados")
+        except Exception as exc:  # noqa: BLE001
+            print(f"DEBUG: SearchAsYouTypeQt error: {exc}")
+            self._deliver_error(term, exc, query_id)
+            return
+        print(f"DEBUG: SearchAsYouTypeQt entregando resultados")
+        self._deliver_results(term, results, query_id)
 
     def _deliver_results(self, term: str, results: Any, query_id: Optional[int] = None) -> None:
+        print(f"DEBUG: SearchAsYouTypeQt._deliver_results llamado con {len(results) if results else 0} resultados, término: '{term}'")
         # Ignorar si llegó tarde
         if query_id is not None and query_id != self._active_query_id:
+            print(f"DEBUG: Resultados ignorados porque query_id {query_id} != active_query_id {self._active_query_id}")
             return
-        QTimer.singleShot(0, lambda: self._on_results(results, term))
+        print(f"DEBUG: Entregando resultados al callback on_results")
+        
+        # Ejecutar directamente en el hilo principal
+        print(f"DEBUG: Ejecutando callback on_results con {len(results) if results else 0} resultados")
+        self._on_results(results, term)
 
     def _deliver_error(self, term: str, error: Exception, query_id: Optional[int] = None) -> None:
         if query_id is not None and query_id != self._active_query_id:

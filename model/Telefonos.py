@@ -1,17 +1,17 @@
 from typing import Optional
 
 class Telefono:
-    CAMPOS_OBLIGATORIOS = ["marca", "modelo", "cliente_id"]
+    CAMPOS_OBLIGATORIOS = ["marca", "modelo", "dni"]
 
-    def __init__(self, telefono_id: Optional[int] = None, marca: str = None, modelo: str = None, contrasena: Optional[str] = None, comentario: Optional[str] = None, cliente_id: Optional[int] = None):
-        if not marca or not modelo or cliente_id is None:
-            raise ValueError("Marca, modelo y cliente_id son obligatorios.")
+    def __init__(self, telefono_id: Optional[int] = None, marca: str = None, modelo: str = None, contrasena: Optional[str] = None, comentario: Optional[str] = None, dni: Optional[int] = None):
+        if not marca or not modelo or dni is None:
+            raise ValueError("Marca, modelo y dni son obligatorios.")
         self.telefono_id = telefono_id
         self.marca = marca
         self.modelo = modelo
         self.contrasena = contrasena or ""
         self.comentario = comentario or ""
-        self.cliente_id = cliente_id
+        self.dni = dni
 
     @classmethod
     def from_dict(cls, datos):
@@ -21,7 +21,7 @@ class Telefono:
             modelo=datos.get("modelo"),
             contrasena=datos.get("contrasena"),
             comentario=datos.get("comentario"),
-            cliente_id=datos.get("cliente_id"),
+            dni=datos.get("dni"),
         )
 
     def to_dict(self):
@@ -31,5 +31,5 @@ class Telefono:
             "modelo": self.modelo,
             "contrasena": self.contrasena,
             "comentario": self.comentario,
-            "cliente_id": self.cliente_id,
+            "dni": self.dni,
         }

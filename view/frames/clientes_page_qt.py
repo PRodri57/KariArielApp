@@ -12,9 +12,11 @@ from PySide6.QtWidgets import (
     QScrollArea,
     QFrame,
     QHBoxLayout,
+    QDialog,
 )
 
 from config.db_queries import obtener_todos_los_clientes, buscar_clientes_por_dni
+from view.frames.subframes.editar_cliente_dialog_qt import EditarClienteDialogQt
 from model.Clientes import Cliente
 from utils.search_as_you_type_qt import SearchAsYouTypeQt
 
@@ -59,6 +61,26 @@ class TarjetaClienteQt(QFrame):
             direccion = QLabel(f"Dirección: {cliente.direccion}")
             direccion.setProperty("role", "meta")
             root.addWidget(direccion)
+
+        # Configurar doble clic
+        self.cliente_data = cliente_data
+        self.mouseDoubleClickEvent = self._on_double_click
+        self.setCursor(Qt.PointingHandCursor)
+        self.setStyleSheet(
+            """
+            QFrame#TarjetaCliente { background: #2c2c2c; border: 1px solid #3a3a3a; border-radius: 10px; }
+            QFrame#TarjetaCliente:hover { background: #3a3a3a; border: 1px solid #4a4a4a; }
+            QLabel[role="name"] { font-size: 18px; font-weight: 700; }
+            QLabel[role="meta"] { color: #bbbbbb; }
+            """
+        )
+
+    def _on_double_click(self, event) -> None:
+        """Maneja el evento de doble clic en la tarjeta"""
+        dni = self.cliente_data.get("dni")
+        if dni:
+            # Emitir señal para que la página principal maneje la edición
+            self.parent().parent().parent().EditarClienteDialogQt(dni)
 
 
 class ClientesPage(QWidget):
@@ -108,12 +130,15 @@ class ClientesPage(QWidget):
         self.scroll_area = QScrollArea(self)
         self.scroll_area.setWidgetResizable(True)
         self.scroll_area.setFrameShape(QFrame.NoFrame)
+        self.scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         root.addWidget(self.scroll_area, 1)
 
         self.results_container = QWidget()
         self.results_layout = QVBoxLayout(self.results_container)
-        self.results_layout.setContentsMargins(0, 0, 0, 0)
+        self.results_layout.setContentsMargins(8, 8, 8, 8)
         self.results_layout.setSpacing(8)
+        self.results_layout.setAlignment(Qt.AlignTop)
         self.scroll_area.setWidget(self.results_container)
 
         # Estilos globales básicos
@@ -128,46 +153,61 @@ class ClientesPage(QWidget):
 
     # ---------- BÚSQUEDA (utilitario compartido) ----------
     def _buscar_clientes(self, term: str) -> List[dict]:
+        print(f"DEBUG: Buscando clientes con término: '{term}'")
         if len(term) == 0:
+            print("DEBUG: Término vacío, retornando lista vacía")
             return []
         try:
             dni_int = int(term)
+            print(f"DEBUG: DNI convertido a int: {dni_int}")
         except ValueError:
+            print(f"DEBUG: Error convirtiendo '{term}' a int")
             return []
-        return buscar_clientes_por_dni(dni_int) or []
+        
+        resultados = buscar_clientes_por_dni(dni_int) or []
+        print(f"DEBUG: Resultados de búsqueda: {len(resultados)} clientes")
+        return resultados
 
     def _on_search_results(self, clientes_data: List[dict], search_term: str) -> None:
+        print(f"DEBUG: _on_search_results llamado con {len(clientes_data)} clientes, término: '{search_term}'")
         if len(search_term) == 0:
+            print("DEBUG: Término vacío, cargando todos los clientes")
             self.status_label.setText("")
             self.cargar_clientes()
             return
+        print("DEBUG: Mostrando resultados de búsqueda")
         self._display_search_results_async(clientes_data, search_term)
 
     # ---------- CARGA INICIAL ----------
     def cargar_clientes(self) -> None:
-        threading.Thread(target=self._cargar_clientes_thread, daemon=True).start()
+        # Cargar directamente en el hilo principal para evitar problemas de sincronización
+        self._cargar_clientes_sync()
 
-    def _cargar_clientes_thread(self) -> None:
+    def _cargar_clientes_sync(self) -> None:
         try:
             clientes_data = obtener_todos_los_clientes()
+            print(f"DEBUG: Cargando clientes, resultado: {len(clientes_data) if clientes_data else 0} clientes")
         except Exception as e:
-            self._set_status_async(f"Error al cargar los clientes: {e}")
-            self._mostrar_mensaje_error_async()
+            print(f"DEBUG: Error cargando clientes: {e}")
+            self.status_label.setText(f"Error al cargar los clientes: {e}")
+            self._mostrar_mensaje_error()
             return
 
         if not clientes_data:
-            self._mostrar_mensaje_vacio_async()
+            print("DEBUG: No hay clientes para mostrar")
+            self._mostrar_mensaje_vacio()
             return
 
-        # Renderizar
-        def render():
-            self._clear_results()
-            for cliente in clientes_data:
-                card = TarjetaClienteQt(self.results_container, cliente)
-                self.results_layout.addWidget(card)
-            self.results_layout.addStretch(1)
-
-        self._invoke_in_main(render)
+        # Renderizar directamente
+        print(f"DEBUG: Renderizando {len(clientes_data)} clientes")
+        self._clear_results()
+        print(f"DEBUG: Después de clear_results, widgets en layout: {self.results_layout.count()}")
+        for i, cliente in enumerate(clientes_data):
+            print(f"DEBUG: Creando tarjeta {i+1} para cliente: {cliente.get('nombre_apellido', 'Sin nombre')}")
+            card = TarjetaClienteQt(self.results_container, cliente)
+            self.results_layout.addWidget(card)
+        self.results_layout.addStretch(1)
+        print(f"DEBUG: Final render, widgets en layout: {self.results_layout.count()}")
 
     # ---------- RENDER Y UTILIDADES ----------
     def _display_search_results_async(self, clientes_data: List[dict], search_term: str) -> None:
@@ -204,11 +244,13 @@ class ClientesPage(QWidget):
         self._invoke_in_main(self._clear_results)
 
     def _clear_results(self) -> None:
+        print(f"DEBUG: Limpiando resultados, widgets actuales: {self.results_layout.count()}")
         while self.results_layout.count():
             item = self.results_layout.takeAt(0)
             w = item.widget()
             if w is not None:
                 w.deleteLater()
+        print(f"DEBUG: Después de limpiar, widgets: {self.results_layout.count()}")
 
     def _set_status_async(self, text: str) -> None:
         def set_text():
@@ -217,6 +259,13 @@ class ClientesPage(QWidget):
 
     def _invoke_in_main(self, fn) -> None:
         QTimer.singleShot(0, fn)
+
+    def _editar_cliente(self, dni: int) -> None:
+        """Abre el diálogo de edición de cliente"""
+        dialog = EditarClienteDialogQt(self, dni)
+        if dialog.exec() == QDialog.Accepted:
+            # Recargar la lista después de editar
+            self.cargar_clientes()
 
 
 __all__ = ["ClientesPage", "TarjetaClienteQt"]
