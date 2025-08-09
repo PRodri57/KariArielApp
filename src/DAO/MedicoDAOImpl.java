@@ -122,6 +122,4 @@ public class MedicoDAOImpl implements MedicoDAO {
             stmt.executeUpdate();
         }
     }
-
-    // Implementar los demás métodos de manera similar a PacienteDAOImpl
 } 
