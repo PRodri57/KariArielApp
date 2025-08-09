@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -15,6 +15,39 @@ from PySide6.QtWidgets import (
 from config.db_queries import obtener_todos_los_telefonos
 from view.frames.subframes.editar_telefono_dialog_qt import EditarTelefonoDialogQt
 
+class FilaTelefonoQt(QWidget):
+    telefono_edit_requested = Signal(int)
+
+    def __init__(self, telefono_data: dict) -> None:
+        super().__init__()
+        self.telefono_data = telefono_data
+        self.telefono_id = telefono_data.get("telefono_id")
+
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(8)
+
+        layout.addWidget(self._label(str(telefono_data.get("telefono_id", ""))))
+        layout.addWidget(self._label(str(telefono_data.get("dni", ""))))
+        layout.addWidget(self._label(telefono_data.get("marca", "")))
+        layout.addWidget(self._label(telefono_data.get("modelo", "")))
+        layout.addWidget(self._label(telefono_data.get("comentario", "")))
+
+        self.setCursor(Qt.PointingHandCursor)
+        self.setStyleSheet("QWidget:hover { background: #333; }")
+
+    def _label(self, text: str) -> QLabel:
+        l = QLabel(text)
+        l.setAttribute(Qt.WA_TransparentForMouseEvents)
+        l.setStyleSheet("QLabel { padding: 6px 4px; }")
+        return l
+
+    def mouseDoubleClickEvent(self, event) -> None:
+        print("DEBUG: Ingreso a mouseDoubleClickEvent")
+        if self.telefono_id is not None:
+            print("DEBUG: Cumplio condicion y termino de entrar")
+            self.telefono_edit_requested.emit(self.telefono_id)
+        super().mouseDoubleClickEvent(event)
 
 class TelefonosPage(QWidget):
     def __init__(self, parent: QWidget | None = None) -> None:
@@ -77,27 +110,11 @@ class TelefonosPage(QWidget):
 
         row = 1
         for tel in telefonos:
-            # Crear contenedor para cada fila
-            row_widget = QWidget()
-            row_layout = QHBoxLayout(row_widget)
-            row_layout.setContentsMargins(0, 0, 0, 0)
-            row_layout.setSpacing(8)
-            
-            # Agregar celdas
-            row_layout.addWidget(self._cell_label(str(tel.get("telefono_id", ""))))
-            row_layout.addWidget(self._cell_label(str(tel.get("dni", ""))))
-            row_layout.addWidget(self._cell_label(tel.get("marca", "")))
-            row_layout.addWidget(self._cell_label(tel.get("modelo", "")))
-            row_layout.addWidget(self._cell_label(tel.get("comentario", "")))
-            
-            # Configurar doble clic
-            telefono_id = tel.get("telefono_id")
-            if telefono_id:
-                row_widget.mouseDoubleClickEvent = lambda event, tid=telefono_id: self._editar_telefono(tid)
-                row_widget.setCursor(Qt.PointingHandCursor)
-                row_widget.setStyleSheet("QWidget:hover { background: #333; }")
-            
-            self.grid.addWidget(row_widget, row, 0, 1, 5)  # Span 5 columnas
+            #print("DEBUG: Ingreso al for")
+            fila = FilaTelefonoQt(tel)
+            fila.telefono_edit_requested.connect(self._editar_telefono)
+            #print("DEBUG: Conecto telefono_edit_requested")
+            self.grid.addWidget(fila, row, 0, 1, 5)
             row += 1
 
         # estirar
@@ -109,14 +126,14 @@ class TelefonosPage(QWidget):
         if extra_styles:
             styles = styles.replace("}", f" {extra_styles} }}")
         l.setStyleSheet(styles)
-        l.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        #l.setAttribute(Qt.WA_TransparentForMouseEvents)
         return l
 
     def _editar_telefono(self, telefono_id: int) -> None:
         """Abre el diálogo de edición de teléfono"""
+        print("DEBUG: Ingreso a _editar_telefono")
         dialog = EditarTelefonoDialogQt(self, telefono_id)
         if dialog.exec() == QDialog.Accepted:
-            # Recargar la lista después de editar
             self._cargar_telefonos()
 
 

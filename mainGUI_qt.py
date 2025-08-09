@@ -96,7 +96,7 @@ class SimplePage(QWidget):
         layout.addWidget(label)
 
         # Espacio para contenido futuro (migración de frames específicos)
-        placeholder = QLabel("Contenido a migrar desde Tkinter → Qt")
+        placeholder = QLabel("En proceso...")
         placeholder.setStyleSheet("color: #bbbbbb;")
         layout.addWidget(placeholder)
         layout.addStretch(1)

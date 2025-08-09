@@ -3,7 +3,7 @@ from __future__ import annotations
 import threading
 from typing import Optional, List
 
-from PySide6.QtCore import Qt, QTimer
+from PySide6.QtCore import Qt, QTimer, Signal
 from PySide6.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -12,7 +12,7 @@ from PySide6.QtWidgets import (
     QScrollArea,
     QFrame,
     QHBoxLayout,
-    QDialog,
+    QDialog
 )
 
 from config.db_queries import obtener_todos_los_clientes, buscar_clientes_por_dni
@@ -22,6 +22,7 @@ from utils.search_as_you_type_qt import SearchAsYouTypeQt
 
 
 class TarjetaClienteQt(QFrame):
+    cliente_edit_requested = Signal(int)
     def __init__(self, parent: QWidget | None, cliente_data: dict) -> None:
         super().__init__(parent)
         self.setObjectName("TarjetaCliente")
@@ -76,11 +77,11 @@ class TarjetaClienteQt(QFrame):
         )
 
     def _on_double_click(self, event) -> None:
-        """Maneja el evento de doble clic en la tarjeta"""
+        """Maneja el evento de doble click en la tarjeta"""
+        #print("DEBUG: Ingreso a mouseDoubleClickEvent")
         dni = self.cliente_data.get("dni")
         if dni:
-            # Emitir señal para que la página principal maneje la edición
-            self.parent().parent().parent().EditarClienteDialogQt(dni)
+            self.cliente_edit_requested.emit(dni)
 
 
 class ClientesPage(QWidget):
@@ -205,6 +206,7 @@ class ClientesPage(QWidget):
         for i, cliente in enumerate(clientes_data):
             print(f"DEBUG: Creando tarjeta {i+1} para cliente: {cliente.get('nombre_apellido', 'Sin nombre')}")
             card = TarjetaClienteQt(self.results_container, cliente)
+            card.cliente_edit_requested.connect(self._editar_cliente)
             self.results_layout.addWidget(card)
         self.results_layout.addStretch(1)
         print(f"DEBUG: Final render, widgets en layout: {self.results_layout.count()}")
@@ -264,7 +266,6 @@ class ClientesPage(QWidget):
         """Abre el diálogo de edición de cliente"""
         dialog = EditarClienteDialogQt(self, dni)
         if dialog.exec() == QDialog.Accepted:
-            # Recargar la lista después de editar
             self.cargar_clientes()
 
 
