@@ -1,5 +1,3 @@
-Perfecto 👌 Con lo que me diste armé un **README.md profesional** para tu proyecto. Podés pegarlo directo en tu repo:
-
 ```markdown
 # KariArielApp
 
