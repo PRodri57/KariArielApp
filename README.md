@@ -1,3 +1,4 @@
+## KariArielApp
 ```markdown
 # KariArielApp
 
@@ -16,8 +17,6 @@ Permite la gestión de usuarios mediante autenticación (login / registro) y ofr
 ---
 
 ## 📂 Estructura del proyecto
-```
-
 KariArielApp/
 │── assets/     # Imágenes e íconos del proyecto
 │── config/     # Configuraciones de la base de datos (Supabase, etc.)
@@ -28,6 +27,7 @@ KariArielApp/
 │── mainGUI\_qt.py
 │── login\_qt.py
 │── .env        # Variables de entorno (API keys, configuración sensible)
+```
 
 ````
 
