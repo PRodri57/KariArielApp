@@ -1,5 +1,5 @@
 from config.supabase_client import supabase
-from offline_cache import obtener_cache, limpiar_cache
+from .offline_cache import obtener_cache, limpiar_cache
 
 def sincronizar_cache():
     cache = obtener_cache()
