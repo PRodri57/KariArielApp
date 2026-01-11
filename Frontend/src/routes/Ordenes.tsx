@@ -1,8 +1,9 @@
 import { useMemo, useState } from "react";
 import { format, parseISO } from "date-fns";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { Input } from "@/components/ui/Input";
 import { StatusBadge } from "@/components/StatusBadge";
 import { useOrdenes } from "@/hooks/ordenes";
 import type { OrdenEstado } from "@/lib/types";
@@ -11,17 +12,27 @@ const filtros: Array<{ label: string; value: OrdenEstado | "TODAS" }> = [
   { label: "Todas", value: "TODAS" },
   { label: "Abiertas", value: "ABIERTA" },
   { label: "En proceso", value: "EN_PROCESO" },
+  { label: "Esperando repuesto", value: "ESPERANDO_REPUESTO" },
   { label: "Listas", value: "LISTA" }
 ];
 
 export function Ordenes() {
   const { data: ordenes = [], isLoading } = useOrdenes();
   const [filtro, setFiltro] = useState<OrdenEstado | "TODAS">("TODAS");
+  const [numeroBusqueda, setNumeroBusqueda] = useState("");
+  const navigate = useNavigate();
 
   const lista = useMemo(() => {
-    if (filtro === "TODAS") return ordenes;
-    return ordenes.filter((orden) => orden.estado === filtro);
-  }, [ordenes, filtro]);
+    let filtradas = ordenes;
+    if (filtro !== "TODAS") {
+      filtradas = filtradas.filter((orden) => orden.estado === filtro);
+    }
+    const termino = numeroBusqueda.trim();
+    if (!termino) return filtradas;
+    return filtradas.filter((orden) =>
+      String(orden.numero_orden).includes(termino)
+    );
+  }, [ordenes, filtro, numeroBusqueda]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -29,7 +40,15 @@ export function Ordenes() {
         <div>
           <h2 className="text-3xl">Ordenes</h2>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <Input
+            placeholder="Buscar por numero"
+            value={numeroBusqueda}
+            onChange={(event) =>
+              setNumeroBusqueda(event.target.value.replace(/\D/g, ""))
+            }
+            className="w-40"
+          />
           {filtros.map((item) => (
             <Button
               key={item.value}
@@ -63,14 +82,31 @@ export function Ordenes() {
             </div>
           ) : null}
           {lista.map((orden) => (
-            <Link
+            <div
               key={orden.numero_orden}
-              to={`/ordenes/${orden.numero_orden}`}
               className="grid grid-cols-1 gap-2 px-6 py-4 text-sm transition hover:bg-ink/5 md:grid-cols-7"
             >
-              <span className="font-semibold text-ink">
-                #{orden.numero_orden}
-              </span>
+              <div className="flex flex-col gap-2">
+                <Link
+                  to={`/ordenes/${orden.numero_orden}`}
+                  className="font-semibold text-ink hover:underline"
+                >
+                  #{orden.numero_orden}
+                </Link>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  type="button"
+                  disabled={!orden.cliente_id}
+                  onClick={() => {
+                    if (orden.cliente_id) {
+                      navigate(`/clientes/${orden.cliente_id}`);
+                    }
+                  }}
+                >
+                  Ver cliente
+                </Button>
+              </div>
               <span className="text-ink/70">
                 {orden.cliente_nombre ?? "Cliente sin datos"}
               </span>
@@ -87,7 +123,7 @@ export function Ordenes() {
                   : "-"}
               </span>
               <span className="text-ink/60">{orden.proveedor ?? "-"}</span>
-            </Link>
+            </div>
           ))}
         </div>
       </Card>

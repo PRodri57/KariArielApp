@@ -22,7 +22,11 @@ cd "$ROOT_DIR/Backend"
 echo "Starting backend on 0.0.0.0:${PORT}"
 echo "CORS_ORIGINS=${CORS_ORIGINS}"
 
-if command -v uvicorn >/dev/null 2>&1; then
+if [[ -x "$ROOT_DIR/.venv/bin/python" ]]; then
+  export VIRTUAL_ENV="$ROOT_DIR/.venv"
+  export PATH="$VIRTUAL_ENV/bin:$PATH"
+  exec "$VIRTUAL_ENV/bin/python" -m uvicorn App.main:app --host 0.0.0.0 --port "$PORT"
+elif command -v uvicorn >/dev/null 2>&1; then
   exec uvicorn App.main:app --host 0.0.0.0 --port "$PORT"
 elif command -v python >/dev/null 2>&1; then
   exec python -m uvicorn App.main:app --host 0.0.0.0 --port "$PORT"

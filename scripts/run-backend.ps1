@@ -1,10 +1,13 @@
 param(
   [Parameter(Mandatory = $true)][string]$HostIp,
-  [int]$Port = 8000
+  [int]$Port = 8000,
+  [string]$CorsOrigins
 )
 
-$defaultCors = "http://localhost:5173,http://127.0.0.1:5173,http://$HostIp:5173"
-if (-not $env:CORS_ORIGINS) {
+$defaultCors = "http://localhost:5173,http://127.0.0.1:5173,http://$($HostIp):5173"
+if ($CorsOrigins) {
+  $env:CORS_ORIGINS = $CorsOrigins
+} else {
   $env:CORS_ORIGINS = $defaultCors
 }
 
@@ -15,7 +18,10 @@ Set-Location (Join-Path $rootDir "Backend")
 Write-Host "Starting backend on 0.0.0.0:$Port"
 Write-Host "CORS_ORIGINS=$env:CORS_ORIGINS"
 
-if (Get-Command uvicorn -ErrorAction SilentlyContinue) {
+$venvPython = Join-Path $rootDir ".venv\Scripts\python.exe"
+if (Test-Path $venvPython) {
+  & $venvPython -m uvicorn App.main:app --host 0.0.0.0 --port $Port
+} elseif (Get-Command uvicorn -ErrorAction SilentlyContinue) {
   uvicorn App.main:app --host 0.0.0.0 --port $Port
 } elseif (Get-Command python -ErrorAction SilentlyContinue) {
   python -m uvicorn App.main:app --host 0.0.0.0 --port $Port

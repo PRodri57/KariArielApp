@@ -2,6 +2,5 @@ fastapi==0.128.0
 uvicorn==0.40
 pydantic==2.12
 pydantic-settings==2.12
-supabase==2.11.0
-vite==1.5.2
+supabase==2.27.1
 reportlab==4.2.0

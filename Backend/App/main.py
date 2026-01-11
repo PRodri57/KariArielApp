@@ -13,18 +13,22 @@ DEFAULT_CORS_ORIGINS = (
 )
 
 
-def cors_origins_from_env() -> list[str]:
+def cors_config_from_env() -> tuple[list[str], str | None]:
     raw = os.getenv("CORS_ORIGINS", "").strip()
     if not raw:
-        return list(DEFAULT_CORS_ORIGINS)
+        return list(DEFAULT_CORS_ORIGINS), None
     origins = [origin.strip() for origin in raw.split(",") if origin.strip()]
-    return origins or list(DEFAULT_CORS_ORIGINS)
+    if "*" in origins:
+        return [], ".*"
+    return origins or list(DEFAULT_CORS_ORIGINS), None
 
 
 app = FastAPI(title="KariAriel App")
+cors_origins, cors_origin_regex = cors_config_from_env()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=cors_origins_from_env(),
+    allow_origins=cors_origins,
+    allow_origin_regex=cors_origin_regex,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
