@@ -19,4 +19,16 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 cd "$ROOT_DIR/Backend"
 
-exec uvicorn App.main:app --host 0.0.0.0 --port "$PORT"
+echo "Starting backend on 0.0.0.0:${PORT}"
+echo "CORS_ORIGINS=${CORS_ORIGINS}"
+
+if command -v uvicorn >/dev/null 2>&1; then
+  exec uvicorn App.main:app --host 0.0.0.0 --port "$PORT"
+elif command -v python >/dev/null 2>&1; then
+  exec python -m uvicorn App.main:app --host 0.0.0.0 --port "$PORT"
+elif command -v python3 >/dev/null 2>&1; then
+  exec python3 -m uvicorn App.main:app --host 0.0.0.0 --port "$PORT"
+else
+  echo "Error: no se encontro uvicorn ni python en PATH." >&2
+  exit 1
+fi

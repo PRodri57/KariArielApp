@@ -30,13 +30,27 @@ Acceso desde otras redes:
 - Opcion publica: tunnel (Cloudflare Tunnel, ngrok) o port-forwarding. Agregar el dominio publico a `CORS_ORIGINS`.
 
 ### Scripts de arranque
-Se incluyen scripts para levantar ambos servicios desde la raiz del repo:
+Se incluyen scripts para levantar ambos servicios desde la raiz del repo (bash):
 ```bash
 # Backend: expone 0.0.0.0:8000 y arma CORS para la IP indicada
 ./scripts/run-backend.sh 192.168.1.50
 
 # Frontend: expone 0.0.0.0:5173 y apunta al backend
 ./scripts/run-frontend.sh 192.168.1.50
+```
+
+En Windows PowerShell:
+```powershell
+# Backend
+.\scripts\run-backend.ps1 192.168.1.50
+
+# Frontend
+.\scripts\run-frontend.ps1 192.168.1.50
+```
+
+Si PowerShell bloquea scripts:
+```powershell
+Set-ExecutionPolicy -Scope Process Bypass
 ```
 
 Si queres persistir la configuracion del frontend, edita `Frontend/.env`:

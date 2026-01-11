@@ -20,4 +20,12 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 cd "$ROOT_DIR/Frontend"
 
-exec npm run dev -- --host 0.0.0.0 --port "$PORT"
+echo "Starting frontend on 0.0.0.0:${PORT}"
+echo "VITE_API_BASE_URL=${VITE_API_BASE_URL}"
+
+if command -v npm >/dev/null 2>&1; then
+  exec npm run dev -- --host 0.0.0.0 --port "$PORT"
+else
+  echo "Error: no se encontro npm en PATH." >&2
+  exit 1
+fi
