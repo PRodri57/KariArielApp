@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from enum import Enum
 from typing import Optional
 
@@ -21,8 +21,11 @@ class OrdenTrabajoCreate(BaseModel):
     problema: str = Field(..., min_length=1)
     diagnostico: Optional[str] = None
     costo_estimado: Optional[int] = Field(None, ge=0)
+    costo_bruto: Optional[int] = Field(None, ge=0)
+    costo_revision: Optional[int] = Field(None, ge=0)
     proveedor: Optional[str] = None
     sena: Optional[int] = Field(None, ge=0)
+    sena_revision: Optional[int] = Field(None, ge=0)
     notas: Optional[str] = None
 
 
@@ -34,6 +37,9 @@ class OrdenTrabajoOut(BaseModel):
     id: int
     numero_orden: int = Field(validation_alias="num_orden")
     telefono_id: Optional[int] = Field(default=None, validation_alias="tel_id")
+    cliente_id: Optional[int] = None
+    cliente_nombre: Optional[str] = None
+    telefono_label: Optional[str] = None
     estado: Optional[OrdenEstado] = None
     fecha_ingreso: Optional[date] = Field(default=None, validation_alias="ingreso")
     fecha_retiro: Optional[date] = Field(default=None, validation_alias="retiro")
@@ -42,9 +48,14 @@ class OrdenTrabajoOut(BaseModel):
     costo_estimado: Optional[int] = Field(
         default=None, validation_alias="presupuesto"
     )
+    costo_bruto: Optional[int] = None
+    costo_revision: Optional[int] = None
     costo_final: Optional[int] = None
     proveedor: Optional[str] = None
-    sena: Optional[int] = Field(default=None, validation_alias="senia")
+    sena: Optional[int] = Field(default=None, validation_alias="sena")
+    sena_revision: Optional[int] = None
+    total_senas: Optional[int] = None
+    resto_pagar: Optional[int] = None
     notas: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)
@@ -56,7 +67,24 @@ class OrdenTrabajoUpdate(BaseModel):
     problema: Optional[str] = Field(None, min_length=1)
     diagnostico: Optional[str] = None
     costo_estimado: Optional[int] = Field(None, ge=0)
+    costo_bruto: Optional[int] = Field(None, ge=0)
+    costo_revision: Optional[int] = Field(None, ge=0)
     costo_final: Optional[int] = Field(None, ge=0)
     proveedor: Optional[str] = None
     sena: Optional[int] = Field(None, ge=0)
+    sena_revision: Optional[int] = Field(None, ge=0)
     notas: Optional[str] = None
+
+
+class OrdenSenaCreate(BaseModel):
+    monto: int = Field(..., gt=0)
+
+
+class OrdenSenaOut(BaseModel):
+    id: int
+    orden_id: int
+    numero_orden: int
+    monto: int
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)

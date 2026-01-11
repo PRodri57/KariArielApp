@@ -12,8 +12,29 @@ export const ordenFormSchema = z.object({
       (value) => !value || /^\d+(\.\d{1,2})?$/.test(value),
       "Costo invalido"
     ),
+  costo_bruto: z
+    .string()
+    .optional()
+    .refine(
+      (value) => !value || /^\d+(\.\d{1,2})?$/.test(value),
+      "Costo invalido"
+    ),
+  costo_revision: z
+    .string()
+    .optional()
+    .refine(
+      (value) => !value || /^\d+(\.\d{1,2})?$/.test(value),
+      "Costo invalido"
+    ),
   proveedor: z.string().optional(),
   sena: z
+    .string()
+    .optional()
+    .refine(
+      (value) => !value || /^\d+(\.\d{1,2})?$/.test(value),
+      "Sena invalida"
+    ),
+  sena_revision: z
     .string()
     .optional()
     .refine(
@@ -43,6 +64,20 @@ export const ordenUpdateFormSchema = z.object({
       (value) => !value || /^\d+(\.\d{1,2})?$/.test(value),
       "Costo invalido"
     ),
+  costo_bruto: z
+    .string()
+    .optional()
+    .refine(
+      (value) => !value || /^\d+(\.\d{1,2})?$/.test(value),
+      "Costo invalido"
+    ),
+  costo_revision: z
+    .string()
+    .optional()
+    .refine(
+      (value) => !value || /^\d+(\.\d{1,2})?$/.test(value),
+      "Costo invalido"
+    ),
   costo_final: z
     .string()
     .optional()
@@ -58,6 +93,13 @@ export const ordenUpdateFormSchema = z.object({
       (value) => !value || /^\d+(\.\d{1,2})?$/.test(value),
       "Sena invalida"
     ),
+  sena_revision: z
+    .string()
+    .optional()
+    .refine(
+      (value) => !value || /^\d+(\.\d{1,2})?$/.test(value),
+      "Sena invalida"
+    ),
   notas: z.string().optional()
 });
 
@@ -67,9 +109,15 @@ export const clienteFormSchema = z.object({
   nombre: z.string().min(2, "Nombre requerido"),
   dni: z
     .string()
-    .optional()
-    .refine((value) => !value || /^[0-9]{6,9}$/.test(value), "DNI invalido"),
+    .refine((value) => /^[0-9]{6,9}$/.test(value), "DNI invalido"),
   telefono_contacto: z.string().optional(),
+  email: z
+    .string()
+    .optional()
+    .refine(
+      (value) => !value || /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value),
+      "Email invalido"
+    ),
   notas: z.string().optional()
 });
 

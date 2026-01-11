@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
 
 export function TopBar() {
   return (
@@ -11,10 +10,6 @@ export function TopBar() {
       </div>
 
       <div className="flex w-full flex-col gap-3 md:w-auto md:flex-row md:items-center">
-        <Input
-          placeholder="Buscar orden, cliente o telefono"
-          aria-label="Buscar orden, cliente o telefono"
-        />
         <div className="flex flex-col gap-2 sm:flex-row">
           <Link to="/ordenes/nueva">
             <Button size="md">Nueva orden</Button>

@@ -12,10 +12,29 @@ import { useCreateOrden } from "@/hooks/ordenes";
 import { useTelefonos } from "@/hooks/telefonos";
 import { ordenFormSchema, type OrdenFormValues } from "@/lib/validation";
 
+const proveedores = [
+  "JV",
+  "WorldCell",
+  "Suma",
+  "Jony",
+  "SP",
+  "CyA",
+  "JK",
+  "Sunlong",
+  "Mercadolibre",
+  "Premiumcell",
+  "Saracell",
+  "RV",
+  "Electronica Martinez",
+  "Otros..."
+];
+
 export function NuevaOrden() {
   const [numeroCreado, setNumeroCreado] = useState<number | null>(null);
+  const [errorMensaje, setErrorMensaje] = useState<string | null>(null);
   const [dniBusqueda, setDniBusqueda] = useState("");
   const [dniEncontrado, setDniEncontrado] = useState<null | "encontrado" | "no-encontrado">(null);
+  const [proveedorSeleccionado, setProveedorSeleccionado] = useState("");
   const [searchParams] = useSearchParams();
   const { data: clientes = [] } = useClientes();
   const { data: telefonos = [] } = useTelefonos();
@@ -25,6 +44,8 @@ export function NuevaOrden() {
     handleSubmit,
     formState: { errors },
     reset,
+    clearErrors,
+    setError,
     setValue,
     watch
   } = useForm<OrdenFormValues>({
@@ -35,8 +56,11 @@ export function NuevaOrden() {
       problema: "",
       diagnostico: "",
       costo_estimado: "",
+      costo_bruto: "",
+      costo_revision: "",
       proveedor: "",
       sena: "",
+      sena_revision: "",
       notas: ""
     }
   });
@@ -72,6 +96,8 @@ export function NuevaOrden() {
   }, [clienteSeleccionado, telefonoSeleccionado, telefonosFiltrados, setValue]);
 
   const onSubmit = async (values: OrdenFormValues) => {
+    setErrorMensaje(null);
+    setNumeroCreado(null);
     const payload = {
       telefono_id: Number(values.telefono_id),
       problema: values.problema,
@@ -79,23 +105,49 @@ export function NuevaOrden() {
       costo_estimado: values.costo_estimado
         ? Number(values.costo_estimado)
         : undefined,
-      proveedor: values.proveedor || undefined,
+      costo_bruto: values.costo_bruto ? Number(values.costo_bruto) : undefined,
+      costo_revision: values.costo_revision
+        ? Number(values.costo_revision)
+        : undefined,
+      proveedor:
+        proveedorSeleccionado === "Otros..."
+          ? values.proveedor?.trim() || undefined
+          : proveedorSeleccionado || undefined,
       sena: values.sena ? Number(values.sena) : undefined,
+      sena_revision: values.sena_revision ? Number(values.sena_revision) : undefined,
       notas: values.notas || undefined
     };
 
-    const result = await createOrden.mutateAsync(payload);
-    setNumeroCreado(result.numero_orden);
-    reset({
-      cliente_id: values.cliente_id,
-      telefono_id: "",
-      problema: "",
-      diagnostico: "",
-      costo_estimado: "",
-      proveedor: "",
-      sena: "",
-      notas: ""
-    });
+    if (proveedorSeleccionado === "Otros..." && !payload.proveedor) {
+      setError("proveedor", {
+        type: "manual",
+        message: "Proveedor requerido"
+      });
+      return;
+    }
+
+    try {
+      const result = await createOrden.mutateAsync(payload);
+      setNumeroCreado(result.numero_orden);
+      reset({
+        cliente_id: values.cliente_id,
+        telefono_id: "",
+        problema: "",
+        diagnostico: "",
+        costo_estimado: "",
+        costo_bruto: "",
+        costo_revision: "",
+        proveedor: "",
+        sena: "",
+        sena_revision: "",
+        notas: ""
+      });
+      setProveedorSeleccionado("");
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "No se pudo crear la orden.";
+      setErrorMensaje(message);
+    }
   };
 
   const buscarPorDni = () => {
@@ -122,6 +174,11 @@ export function NuevaOrden() {
         </CardHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          {errorMensaje ? (
+            <div className="rounded-2xl border border-ember/20 bg-ember/10 px-4 py-3 text-sm text-ember">
+              {errorMensaje}
+            </div>
+          ) : null}
           <div className="rounded-2xl border border-ink/10 bg-ink/5 px-4 py-3">
             <label className="text-sm font-semibold">Buscar cliente por DNI</label>
             <div className="mt-2 flex flex-col gap-2 md:flex-row md:items-center">
@@ -239,6 +296,72 @@ export function NuevaOrden() {
               ) : null}
             </div>
             <div>
+              <label className="text-sm font-semibold">Costo bruto</label>
+              <Input placeholder="40000" {...register("costo_bruto")} />
+              {errors.costo_bruto ? (
+                <p className="mt-1 text-xs text-ember">
+                  {errors.costo_bruto.message}
+                </p>
+              ) : null}
+            </div>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <label className="text-sm font-semibold">Proveedor</label>
+              <Select
+                value={proveedorSeleccionado}
+                onChange={(event) => {
+                  setProveedorSeleccionado(event.target.value);
+                  if (event.target.value !== "Otros...") {
+                    setValue("proveedor", "");
+                    clearErrors("proveedor");
+                  }
+                }}
+              >
+                <option value="">Seleccionar proveedor</option>
+                {proveedores.map((proveedor) => (
+                  <option key={proveedor} value={proveedor}>
+                    {proveedor}
+                  </option>
+                ))}
+              </Select>
+              {proveedorSeleccionado === "Otros..." ? (
+                <div className="mt-3">
+                  <Input
+                    placeholder="Proveedor"
+                    {...register("proveedor", {
+                      onChange: () => clearErrors("proveedor")
+                    })}
+                  />
+                </div>
+              ) : null}
+                {proveedorSeleccionado === "Otros..." && errors.proveedor ? (
+                  <p className="mt-1 text-xs text-ember">{errors.proveedor.message}</p>
+                ) : null}
+            </div>
+            <div>
+              <label className="text-sm font-semibold">Costo revision</label>
+              <Input placeholder="3000" {...register("costo_revision")} />
+              {errors.costo_revision ? (
+                <p className="mt-1 text-xs text-ember">
+                  {errors.costo_revision.message}
+                </p>
+              ) : null}
+            </div>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <label className="text-sm font-semibold">Sena revision</label>
+              <Input placeholder="1500" {...register("sena_revision")} />
+              {errors.sena_revision ? (
+                <p className="mt-1 text-xs text-ember">
+                  {errors.sena_revision.message}
+                </p>
+              ) : null}
+            </div>
+            <div>
               <label className="text-sm font-semibold">Sena</label>
               <Input placeholder="5000" {...register("sena")} />
               {errors.sena ? (
@@ -247,15 +370,9 @@ export function NuevaOrden() {
             </div>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2">
-            <div>
-              <label className="text-sm font-semibold">Proveedor</label>
-              <Input placeholder="Proveedor" {...register("proveedor")} />
-            </div>
-            <div>
-              <label className="text-sm font-semibold">Notas internas</label>
-              <Input placeholder="Urgente, repuesto en camino" {...register("notas")} />
-            </div>
+          <div>
+            <label className="text-sm font-semibold">Notas internas</label>
+            <Input placeholder="Urgente, repuesto en camino" {...register("notas")} />
           </div>
 
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">

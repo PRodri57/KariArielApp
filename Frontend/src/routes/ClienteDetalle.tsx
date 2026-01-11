@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { format, parseISO } from "date-fns";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/Button";
@@ -8,7 +8,7 @@ import { Card, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 import { StatusBadge } from "@/components/StatusBadge";
-import { useCliente } from "@/hooks/clientes";
+import { useCliente, useDeleteCliente } from "@/hooks/clientes";
 import { useOrdenes } from "@/hooks/ordenes";
 import { useCreateTelefono, useTelefonos, useUpdateTelefono } from "@/hooks/telefonos";
 import { telefonoFormSchema, type TelefonoFormValues } from "@/lib/validation";
@@ -19,6 +19,8 @@ export function ClienteDetalle() {
   const idValido = !Number.isNaN(clienteId);
 
   const { data: cliente, isLoading } = useCliente(idValido ? clienteId : undefined);
+  const deleteCliente = useDeleteCliente();
+  const navigate = useNavigate();
   const { data: telefonos = [], isLoading: telefonosLoading } = useTelefonos(
     idValido ? clienteId : undefined
   );
@@ -124,6 +126,20 @@ export function ClienteDetalle() {
     setEditandoTelefono(null);
   };
 
+  const eliminarCliente = async () => {
+    if (!cliente) return;
+    const confirmado = window.confirm(
+      "Eliminar cliente? Esto no se puede deshacer."
+    );
+    if (!confirmado) return;
+    try {
+      await deleteCliente.mutateAsync(cliente.id);
+      navigate("/clientes");
+    } catch (_error) {
+      window.alert("No se pudo eliminar el cliente.");
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -133,9 +149,20 @@ export function ClienteDetalle() {
             {cliente?.nombre ?? (isLoading ? "Cargando..." : "No encontrado")}
           </h2>
         </div>
-        <Link to="/clientes">
-          <Button variant="outline">Volver a clientes</Button>
-        </Link>
+        <div className="flex flex-wrap items-center gap-2">
+          <Link to="/clientes">
+            <Button variant="outline">Volver a clientes</Button>
+          </Link>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={eliminarCliente}
+            disabled={deleteCliente.isPending || !cliente}
+            className="border-ember/40 text-ember hover:bg-ember/10"
+          >
+            Eliminar cliente
+          </Button>
+        </div>
       </div>
 
       {!idValido ? (
@@ -168,6 +195,12 @@ export function ClienteDetalle() {
                   <span>Contacto</span>
                   <span className="font-semibold text-ink">
                     {cliente.telefono_contacto ?? "-"}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span>Email</span>
+                  <span className="font-semibold text-ink">
+                    {cliente.email ?? "-"}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">

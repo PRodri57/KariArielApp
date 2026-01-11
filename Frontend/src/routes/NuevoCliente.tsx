@@ -24,6 +24,7 @@ export function NuevoCliente() {
       nombre: "",
       dni: "",
       telefono_contacto: "",
+      email: "",
       notas: ""
     }
   });
@@ -31,8 +32,9 @@ export function NuevoCliente() {
   const onSubmit = async (values: ClienteFormValues) => {
     const payload = {
       nombre: values.nombre,
-      dni: values.dni || undefined,
+      dni: values.dni,
       telefono_contacto: values.telefono_contacto || undefined,
+      email: values.email || undefined,
       notas: values.notas || undefined
     };
 
@@ -61,7 +63,7 @@ export function NuevoCliente() {
           <div className="grid gap-4 md:grid-cols-2">
             <div>
               <label className="text-sm font-semibold">DNI</label>
-              <Input placeholder="Opcional" {...register("dni")} />
+              <Input placeholder="12345678" {...register("dni")} />
               {errors.dni ? (
                 <p className="mt-1 text-xs text-ember">{errors.dni.message}</p>
               ) : null}
@@ -70,6 +72,14 @@ export function NuevoCliente() {
               <label className="text-sm font-semibold">Telefono contacto</label>
               <Input placeholder="11 5555-1234" {...register("telefono_contacto")} />
             </div>
+          </div>
+
+          <div>
+            <label className="text-sm font-semibold">Email</label>
+            <Input placeholder="cliente@email.com" {...register("email")} />
+            {errors.email ? (
+              <p className="mt-1 text-xs text-ember">{errors.email.message}</p>
+            ) : null}
           </div>
 
           <div>

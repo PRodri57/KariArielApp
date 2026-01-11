@@ -6,6 +6,8 @@ import type {
   OrdenCreatePayload,
   OrdenCreateResponse,
   OrdenEstado,
+  OrdenSena,
+  OrdenSenaCreatePayload,
   OrdenUpdatePayload,
   Telefono,
   TelefonoCreatePayload,
@@ -22,6 +24,7 @@ let mockClienteId = 4;
 let mockTelefonoId = 5;
 let mockOrdenId = 3;
 let mockSequence = 18023;
+let mockSenaId = 3;
 
 const mockClientes: Cliente[] = [
   {
@@ -29,6 +32,7 @@ const mockClientes: Cliente[] = [
     dni: "23456789",
     nombre: "Marta R.",
     telefono_contacto: "11 5555-1234",
+    email: "marta@email.com",
     notas: "Prefiere WhatsApp.",
     creado_en: "2024-12-10"
   },
@@ -37,14 +41,16 @@ const mockClientes: Cliente[] = [
     dni: "29123456",
     nombre: "Luis G.",
     telefono_contacto: "11 4222-9012",
+    email: null,
     notas: null,
     creado_en: "2024-12-15"
   },
   {
     id: 3,
-    dni: null,
+    dni: "30123456",
     nombre: "Sofia L.",
     telefono_contacto: "11 6000-7788",
+    email: "sofia@email.com",
     notas: "Trabaja cerca del local.",
     creado_en: "2024-12-18"
   }
@@ -97,8 +103,11 @@ const mockOrdenes: Orden[] = [
     problema: "Pantalla rota",
     diagnostico: "Flex dañado",
     costo_estimado: 32000,
+    costo_bruto: 40000,
+    costo_revision: 3000,
     proveedor: "Proveedor Central",
-    sena: 5000
+    sena: 5000,
+    sena_revision: 1500
   },
   {
     id: 2,
@@ -111,14 +120,43 @@ const mockOrdenes: Orden[] = [
     problema: "No enciende",
     diagnostico: null,
     costo_estimado: 18500,
+    costo_bruto: 22000,
+    costo_revision: 2500,
     proveedor: null,
-    sena: null
+    sena: null,
+    sena_revision: null
+  }
+];
+
+const mockSenas: OrdenSena[] = [
+  {
+    id: 1,
+    orden_id: 1,
+    numero_orden: 18021,
+    monto: 3000,
+    created_at: "2024-12-28T10:10:00Z"
+  },
+  {
+    id: 2,
+    orden_id: 1,
+    numero_orden: 18021,
+    monto: 2000,
+    created_at: "2024-12-29T12:10:00Z"
   }
 ];
 
 const telefonoLabel = (telefono: Telefono) => `${telefono.marca} ${telefono.modelo}`;
 
 const withOrdenLabels = (orden: Orden): Orden => {
+  const total_senas =
+    orden.sena ??
+    mockSenas
+      .filter((item) => item.numero_orden === orden.numero_orden)
+      .reduce((acc, item) => acc + item.monto, 0);
+  const resto_pagar =
+    orden.costo_estimado !== null && orden.costo_estimado !== undefined
+      ? orden.costo_estimado - total_senas
+      : null;
   const telefono = mockTelefonos.find((item) => item.id === orden.telefono_id);
   const cliente = telefono
     ? mockClientes.find((item) => item.id === telefono.cliente_id)
@@ -127,7 +165,9 @@ const withOrdenLabels = (orden: Orden): Orden => {
     ...orden,
     cliente_id: cliente?.id ?? orden.cliente_id ?? null,
     cliente_nombre: cliente?.nombre ?? null,
-    telefono_label: telefono ? telefonoLabel(telefono) : null
+    telefono_label: telefono ? telefonoLabel(telefono) : null,
+    total_senas,
+    resto_pagar
   };
 };
 
@@ -138,11 +178,29 @@ async function fetchJson<T>(path: string, init?: RequestInit): Promise<T> {
   });
 
   if (!response.ok) {
-    const message = await response.text();
-    throw new Error(message || "API error");
+    const text = await response.text();
+    let message = text || "API error";
+    if (text) {
+      try {
+        const data = JSON.parse(text) as { detail?: string };
+        if (data && typeof data.detail === "string") {
+          message = data.detail;
+        }
+      } catch {
+        // Keep raw text when response is not JSON.
+      }
+    }
+    throw new Error(message);
   }
 
-  return response.json() as Promise<T>;
+  if (response.status === 204) {
+    return undefined as T;
+  }
+  const text = await response.text();
+  if (!text) {
+    return undefined as T;
+  }
+  return JSON.parse(text) as T;
 }
 
 export async function listClientes(): Promise<Cliente[]> {
@@ -171,8 +229,9 @@ export async function createCliente(
     const nuevo: Cliente = {
       id: mockClienteId++,
       nombre: payload.nombre,
-      dni: payload.dni ?? null,
+      dni: payload.dni,
       telefono_contacto: payload.telefono_contacto ?? null,
+      email: payload.email ?? null,
       notas: payload.notas ?? null,
       creado_en: new Date().toISOString().slice(0, 10)
     };
@@ -184,6 +243,26 @@ export async function createCliente(
     method: "POST",
     body: JSON.stringify(payload)
   });
+}
+
+export async function deleteCliente(id: number): Promise<void> {
+  if (USE_MOCKS) {
+    await wait(200);
+    const tieneTelefonos = mockTelefonos.some(
+      (telefono) => telefono.cliente_id === id
+    );
+    if (tieneTelefonos) {
+      throw new Error("Cliente con telefonos asociados");
+    }
+    const index = mockClientes.findIndex((cliente) => cliente.id === id);
+    if (index === -1) {
+      throw new Error("Cliente no encontrado");
+    }
+    mockClientes.splice(index, 1);
+    return;
+  }
+
+  await fetchJson<void>(`/clientes/${id}`, { method: "DELETE" });
 }
 
 export async function listTelefonos(clienteId?: number): Promise<Telefono[]> {
@@ -290,8 +369,11 @@ export async function createOrden(
       problema: payload.problema,
       diagnostico: payload.diagnostico ?? null,
       costo_estimado: payload.costo_estimado ?? null,
+      costo_bruto: payload.costo_bruto ?? null,
+      costo_revision: payload.costo_revision ?? null,
       proveedor: payload.proveedor ?? null,
       sena: payload.sena ?? null,
+      sena_revision: payload.sena_revision ?? null,
       notas: payload.notas ?? null
     });
     return { numero_orden };
@@ -329,16 +411,28 @@ export async function updateOrden(payload: OrdenUpdatePayload): Promise<Orden> {
         payload.costo_estimado !== undefined
           ? payload.costo_estimado
           : current.costo_estimado ?? null,
+      costo_bruto:
+        payload.costo_bruto !== undefined
+          ? payload.costo_bruto
+          : current.costo_bruto ?? null,
       costo_final:
         payload.costo_final !== undefined
           ? payload.costo_final
           : current.costo_final ?? null,
+      costo_revision:
+        payload.costo_revision !== undefined
+          ? payload.costo_revision
+          : current.costo_revision ?? null,
       proveedor:
         payload.proveedor !== undefined
           ? payload.proveedor
           : current.proveedor ?? null,
       sena:
         payload.sena !== undefined ? payload.sena : current.sena ?? null,
+      sena_revision:
+        payload.sena_revision !== undefined
+          ? payload.sena_revision
+          : current.sena_revision ?? null,
       notas:
         payload.notas !== undefined ? payload.notas : current.notas ?? null
     };
@@ -348,6 +442,64 @@ export async function updateOrden(payload: OrdenUpdatePayload): Promise<Orden> {
 
   return fetchJson<Orden>(`/ordenes_trabajo/${payload.numero_orden}`, {
     method: "PUT",
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function deleteOrden(numero: number): Promise<void> {
+  if (USE_MOCKS) {
+    await wait(200);
+    const index = mockOrdenes.findIndex((item) => item.numero_orden === numero);
+    if (index === -1) {
+      throw new Error("Orden no encontrada");
+    }
+    mockOrdenes.splice(index, 1);
+    for (let i = mockSenas.length - 1; i >= 0; i -= 1) {
+      if (mockSenas[i].numero_orden === numero) {
+        mockSenas.splice(i, 1);
+      }
+    }
+    return;
+  }
+
+  await fetchJson<void>(`/ordenes_trabajo/${numero}`, { method: "DELETE" });
+}
+
+export async function listOrdenSenas(numero: number): Promise<OrdenSena[]> {
+  if (USE_MOCKS) {
+    await wait(200);
+    return mockSenas
+      .filter((item) => item.numero_orden === numero)
+      .sort((a, b) => b.created_at.localeCompare(a.created_at));
+  }
+
+  return fetchJson<OrdenSena[]>(`/ordenes_trabajo/${numero}/senas`);
+}
+
+export async function createOrdenSena(
+  numero: number,
+  payload: OrdenSenaCreatePayload
+): Promise<OrdenSena> {
+  if (USE_MOCKS) {
+    await wait(250);
+    const orden = mockOrdenes.find((item) => item.numero_orden === numero);
+    if (!orden) {
+      throw new Error("Orden no encontrada");
+    }
+    const nueva: OrdenSena = {
+      id: mockSenaId++,
+      orden_id: orden.id,
+      numero_orden: numero,
+      monto: payload.monto,
+      created_at: new Date().toISOString()
+    };
+    mockSenas.unshift(nueva);
+    orden.sena = (orden.sena ?? 0) + payload.monto;
+    return nueva;
+  }
+
+  return fetchJson<OrdenSena>(`/ordenes_trabajo/${numero}/senas`, {
+    method: "POST",
     body: JSON.stringify(payload)
   });
 }

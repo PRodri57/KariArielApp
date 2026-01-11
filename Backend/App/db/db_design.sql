@@ -22,10 +22,23 @@ CREATE TABLE public.ordenes_de_trabajo (
   problema text,
   diagnostico text,
   presupuesto bigint,
+  costo_bruto numeric,
   senia bigint,
   notas text,
+  proveedor text,
+  sena numeric,
+  costo_revision numeric,
+  sena_revision numeric,
   CONSTRAINT ordenes_de_trabajo_pkey PRIMARY KEY (id),
   CONSTRAINT ordenes_de_trabajo_tel_id_fkey FOREIGN KEY (tel_id) REFERENCES public.telefonos(id)
+);
+CREATE TABLE public.ordenes_senas (
+  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+  orden_id bigint NOT NULL,
+  monto numeric NOT NULL,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT ordenes_senas_pkey PRIMARY KEY (id),
+  CONSTRAINT ordenes_senas_orden_id_fkey FOREIGN KEY (orden_id) REFERENCES public.ordenes_de_trabajo(id)
 );
 CREATE TABLE public.telefonos (
   id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,

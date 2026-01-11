@@ -26,10 +26,12 @@ export function Clientes() {
       const nombre = cliente.nombre.toLowerCase();
       const dni = cliente.dni ?? "";
       const telefono = cliente.telefono_contacto ?? "";
+      const email = cliente.email ?? "";
       return (
         nombre.includes(term) ||
         dni.toLowerCase().includes(term) ||
-        telefono.toLowerCase().includes(term)
+        telefono.toLowerCase().includes(term) ||
+        email.toLowerCase().includes(term)
       );
     });
   }, [clientes, query]);
@@ -45,7 +47,7 @@ export function Clientes() {
         </div>
         <div className="flex flex-col gap-3 md:flex-row md:items-center">
           <Input
-            placeholder="Buscar por nombre, DNI o telefono"
+            placeholder="Buscar por nombre, DNI, telefono o email"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
           />
