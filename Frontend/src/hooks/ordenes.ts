@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createOrden, getOrden, listOrdenes } from "@/lib/api";
-import type { OrdenCreatePayload } from "@/lib/types";
+import { createOrden, getOrden, listOrdenes, updateOrden } from "@/lib/api";
+import type { OrdenCreatePayload, OrdenUpdatePayload } from "@/lib/types";
 
 export function useOrdenes() {
   return useQuery({
@@ -24,6 +24,18 @@ export function useCreateOrden() {
     mutationFn: (payload: OrdenCreatePayload) => createOrden(payload),
     onSuccess: () => {
       client.invalidateQueries({ queryKey: ["ordenes"] });
+    }
+  });
+}
+
+export function useUpdateOrden() {
+  const client = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: OrdenUpdatePayload) => updateOrden(payload),
+    onSuccess: (data) => {
+      client.invalidateQueries({ queryKey: ["ordenes"] });
+      client.invalidateQueries({ queryKey: ["orden", data.numero_orden] });
     }
   });
 }

@@ -1,17 +1,31 @@
-from contextlib import contextmanager
-from typing import Iterator
+from typing import Callable, TypeVar
 
-from sqlalchemy import create_engine
-from sqlalchemy.engine import Connection, Engine
+import httpx
+from supabase import Client, create_client
 
 from App.Core.config import settings
+from App.db.errors import DatabaseUnavailableError
 
-engine: Engine = create_engine (
-    settings.database_url,
-    pool_pre_ping = True,
+_supabase: Client = create_client(
+    settings.supabase_url,
+    settings.supabase_service_key,
 )
 
-@contextmanager
-def get_connection() -> Iterator[Connection]:
-    with engine.connect() as conn:
-        yield conn
+T = TypeVar("T")
+
+
+def get_supabase_client() -> Client:
+    return _supabase
+
+
+def execute_supabase(operation: Callable[[], T]) -> T:
+    try:
+        return operation()
+    except httpx.TimeoutException as exc:
+        raise DatabaseUnavailableError(
+            "Timeout al conectar con Supabase."
+        ) from exc
+    except httpx.RequestError as exc:
+        raise DatabaseUnavailableError(
+            "Error de red al conectar con Supabase."
+        ) from exc

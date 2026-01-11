@@ -44,12 +44,14 @@ export function Ordenes() {
       </div>
 
       <Card className="overflow-hidden p-0">
-        <div className="grid grid-cols-5 gap-2 border-b border-ink/10 bg-haze/70 px-6 py-4 text-xs uppercase tracking-[0.3em] text-ink/40">
+        <div className="grid grid-cols-7 gap-2 border-b border-ink/10 bg-haze/70 px-6 py-4 text-xs uppercase tracking-[0.3em] text-ink/40">
           <span>Orden</span>
           <span>Cliente</span>
           <span>Equipo</span>
           <span>Estado</span>
           <span>Ingreso</span>
+          <span>Retiro</span>
+          <span>Proveedor</span>
         </div>
         <div className="divide-y divide-ink/10">
           {isLoading ? (
@@ -64,17 +66,27 @@ export function Ordenes() {
             <Link
               key={orden.numero_orden}
               to={`/ordenes/${orden.numero_orden}`}
-              className="grid grid-cols-1 gap-2 px-6 py-4 text-sm transition hover:bg-ink/5 md:grid-cols-5"
+              className="grid grid-cols-1 gap-2 px-6 py-4 text-sm transition hover:bg-ink/5 md:grid-cols-7"
             >
               <span className="font-semibold text-ink">
                 #{orden.numero_orden}
               </span>
-              <span className="text-ink/70">{orden.cliente}</span>
-              <span className="text-ink/70">{orden.telefono}</span>
+              <span className="text-ink/70">
+                {orden.cliente_nombre ?? "Cliente sin datos"}
+              </span>
+              <span className="text-ink/70">
+                {orden.telefono_label ?? `Telefono #${orden.telefono_id}`}
+              </span>
               <StatusBadge estado={orden.estado} />
               <span className="text-ink/60">
                 {format(parseISO(orden.fecha_ingreso), "dd/MM/yyyy")}
               </span>
+              <span className="text-ink/60">
+                {orden.fecha_retiro
+                  ? format(parseISO(orden.fecha_retiro), "dd/MM/yyyy")
+                  : "-"}
+              </span>
+              <span className="text-ink/60">{orden.proveedor ?? "-"}</span>
             </Link>
           ))}
         </div>

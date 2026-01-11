@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 const navItems = [
   { to: "/", label: "Dashboard" },
   { to: "/ordenes", label: "Ordenes" },
+  { to: "/clientes", label: "Clientes" },
   { to: "/ordenes/nueva", label: "Nueva orden" }
 ];
 

@@ -3,10 +3,14 @@ import { Link } from "react-router-dom";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { StatusBadge } from "@/components/StatusBadge";
+import { useClientes } from "@/hooks/clientes";
 import { useOrdenes } from "@/hooks/ordenes";
+import { useTelefonos } from "@/hooks/telefonos";
 
 export function Dashboard() {
   const { data: ordenes = [], isLoading } = useOrdenes();
+  const { data: clientes = [], isLoading: clientesLoading } = useClientes();
+  const { data: telefonos = [], isLoading: telefonosLoading } = useTelefonos();
 
   const abiertas = ordenes.filter((orden) => orden.estado === "ABIERTA").length;
   const enProceso = ordenes.filter((orden) => orden.estado === "EN_PROCESO").length;
@@ -14,7 +18,7 @@ export function Dashboard() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-5">
         <Card>
           <CardHeader>
             <CardDescription>Abiertas</CardDescription>
@@ -31,6 +35,18 @@ export function Dashboard() {
           <CardHeader>
             <CardDescription>Listas</CardDescription>
             <CardTitle>{isLoading ? "..." : listas}</CardTitle>
+          </CardHeader>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardDescription>Clientes</CardDescription>
+            <CardTitle>{clientesLoading ? "..." : clientes.length}</CardTitle>
+          </CardHeader>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardDescription>Telefonos</CardDescription>
+            <CardTitle>{telefonosLoading ? "..." : telefonos.length}</CardTitle>
           </CardHeader>
         </Card>
       </div>
@@ -54,7 +70,8 @@ export function Dashboard() {
                 <div>
                   <p className="text-sm text-ink/60">Orden #{orden.numero_orden}</p>
                   <p className="text-base font-semibold text-ink">
-                    {orden.cliente} - {orden.telefono}
+                    {orden.cliente_nombre ?? "Cliente sin datos"} -{" "}
+                    {orden.telefono_label ?? `Telefono #${orden.telefono_id}`}
                   </p>
                   <p className="text-xs text-ink/50">
                     {format(parseISO(orden.fecha_ingreso), "dd MMM yyyy")}
@@ -75,7 +92,7 @@ export function Dashboard() {
               </div>
             ) : null}
           </div>
-      </div>
+      </Card>
     </div>
   );
 }
