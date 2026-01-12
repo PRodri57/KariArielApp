@@ -2,17 +2,27 @@
 set -euo pipefail
 
 usage() {
-  echo "Usage: $(basename "$0") <host-ip> [env: PORT, CORS_ORIGINS]" >&2
+  echo "Usage: $(basename "$0") <host-ip> [extra-host-ip ...] [env: PORT, FRONTEND_PORT_BASE, CORS_ORIGINS]" >&2
   exit 1
 }
 
-HOST_IP="${1:-}"
-if [[ -z "$HOST_IP" ]]; then
+HOST_IPS=("$@")
+if [[ ${#HOST_IPS[@]} -eq 0 ]]; then
   usage
 fi
 
 PORT="${PORT:-8000}"
-DEFAULT_CORS="http://localhost:5173,http://127.0.0.1:5173,http://${HOST_IP}:5173"
+FRONTEND_PORT_BASE="${FRONTEND_PORT_BASE:-5173}"
+DEFAULT_CORS_PARTS=(
+  "http://localhost:${FRONTEND_PORT_BASE}"
+  "http://127.0.0.1:${FRONTEND_PORT_BASE}"
+)
+for index in "${!HOST_IPS[@]}"; do
+  HOST_IP="${HOST_IPS[$index]}"
+  FRONTEND_PORT=$((FRONTEND_PORT_BASE + index))
+  DEFAULT_CORS_PARTS+=("http://${HOST_IP}:${FRONTEND_PORT}")
+done
+DEFAULT_CORS="$(IFS=,; echo "${DEFAULT_CORS_PARTS[*]}")"
 export CORS_ORIGINS="${CORS_ORIGINS:-$DEFAULT_CORS}"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
