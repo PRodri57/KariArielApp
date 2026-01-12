@@ -84,6 +84,42 @@ def _draw_wrapped(
     return _draw_lines(pdf, lines, x, y, line_height, min_y)
 
 
+def _draw_boxed_text(
+    pdf: canvas.Canvas,
+    text: str,
+    x: float,
+    y_top: float,
+    width: float,
+    min_y: float,
+    font_name: str,
+    font_size: float,
+    line_height: float,
+    padding: float,
+) -> float:
+    lines = _wrap_text(text, font_name, font_size, width - 2 * padding)
+    available_height = y_top - min_y
+    max_lines = int((available_height - 2 * padding) // line_height)
+    if max_lines < 1:
+        max_lines = 1
+    if len(lines) > max_lines:
+        lines = lines[:max_lines]
+        lines[-1] = f"{lines[-1].rstrip()}..."
+    height = 2 * padding + line_height * len(lines)
+    y_bottom = y_top - height
+    if y_bottom < min_y:
+        y_bottom = min_y
+        height = y_top - y_bottom
+
+    pdf.setLineWidth(0.6)
+    pdf.rect(x, y_bottom, width, height)
+    pdf.setFont(font_name, font_size)
+    y_text = y_top - padding - font_size
+    for line in lines:
+        pdf.drawString(x + padding, y_text, line)
+        y_text -= line_height
+    return y_bottom
+
+
 def _draw_section(
     pdf: canvas.Canvas,
     orden: OrdenTrabajoOut,
@@ -96,12 +132,60 @@ def _draw_section(
     signature_height = 22 * mm
     content_min_y = y_min + signature_height
 
-    pdf.setFont("Helvetica-Bold", 14)
-    pdf.drawString(x, y_start, "Comprobante de orden")
-    y = y_start - 16
+    pdf.setFont("Helvetica-Bold", 16)
+    pdf.drawString(x, y_start, "KARI ARIEL")
+    pdf.setFont("Helvetica", 10)
+    pdf.drawString(x, y_start - 14, "Servicio técnico de celulares")
+    pdf.drawString(x, y_start - 26, "Dominicis 815, Campana")
+    pdf.drawString(x, y_start - 38, "Whatsapp 3489 515072")
+    y = y_start - 52
     font_name = "Helvetica"
     font_size = 10
     pdf.setFont(font_name, font_size)
+    left_bound = x
+    right_bound = page_width - x
+    full_width = right_bound - left_bound
+
+    aviso_principal = (
+        "Queda notificado que el presupuesto se congelará con una seña "
+        "mayor o igual al 50%, durante 30 días corridos, luego de "
+        "recibida la seña. En caso de haber concluido el plazo, el "
+        "presupuesto se actualizará al precio del momento. "
+        "Una vez reparado el equipo, y notificado, cuenta con 45 días "
+        "para retirar del equipo en Barnetche 2283 o en Dominicis 815, "
+        "Campana. Caso contrario, será aplicable la normativa vigente "
+        "del CCyCN y ccdts. (Cosa mueble abandonada por su Propietario). "
+        "Por cuestiones de seguridad, el equipo sólo podrá retirarse con este comprobante."
+    )
+    aviso_importante = (
+        "Importante: No dejar en el teléfono Chip ni tarjeta de memoria."
+    )
+    y = _draw_boxed_text(
+        pdf,
+        aviso_principal,
+        left_bound,
+        y,
+        full_width,
+        content_min_y,
+        font_name,
+        7.5,
+        9,
+        4,
+    )
+    y -= 8
+    y = _draw_boxed_text(
+        pdf,
+        aviso_importante,
+        left_bound,
+        y,
+        full_width,
+        content_min_y,
+        font_name,
+        8,
+        9,
+        4,
+    )
+    y -= 14
 
     total_senas = orden.total_senas
     if total_senas is None:
@@ -119,7 +203,7 @@ def _draw_section(
     detalles = [
         ("Orden", f"#{orden.numero_orden}"),
         ("Ingreso", _fmt_fecha(orden.fecha_ingreso)),
-        ("Retiro", _fmt_fecha(orden.fecha_retiro)),
+        ("Retiro", "__/__/____"),
         (
             "Telefono",
             orden.telefono_label
@@ -129,14 +213,13 @@ def _draw_section(
         ("Diagnostico", orden.diagnostico or "-"),
         ("Presupuesto", _fmt_monto(orden.costo_estimado)),
         ("Costo revision", _fmt_monto(orden.costo_revision)),
+        ("Garantía (días)", _fmt_monto(orden.garantia)),
         ("Total señas", _fmt_monto(total_senas)),
         ("Resto a pagar", _fmt_monto(resto_pagar)),
     ]
 
     line_height = 12
     col_gap = 10 * mm
-    left_bound = x
-    right_bound = page_width - x
     available_width = right_bound - left_bound
     col_width = (available_width - col_gap) / 2
     label_width = min(32 * mm, col_width * 0.45)
@@ -206,8 +289,6 @@ def _draw_section(
         pdf, ["Historial de senas"], x, y, line_height, content_min_y
     )
     pdf.setFont(font_name, font_size)
-    full_width = right_bound - left_bound
-
     if not senas:
         y = _draw_wrapped(
             pdf,
@@ -237,10 +318,8 @@ def _draw_section(
 
     pdf.setFont("Helvetica", 10)
     firma_y = y_min + 14 * mm
-    fecha_y = y_min + 5 * mm
     pdf.drawString(x, firma_y, "Firma del cliente:")
     pdf.line(x + 40 * mm, firma_y - 2, page_width - x, firma_y - 2)
-    pdf.drawString(x, fecha_y, "Fecha: __/__/____")
 
 
 def generar_comprobante_pdf(
@@ -251,7 +330,7 @@ def generar_comprobante_pdf(
     width, height = A4
 
     margin = 15 * mm
-    gap = 8 * mm
+    gap = 12 * mm
     x = 18 * mm
 
     available = height - 2 * margin - gap

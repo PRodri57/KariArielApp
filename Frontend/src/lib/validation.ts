@@ -26,6 +26,10 @@ export const ordenFormSchema = z.object({
       (value) => !value || /^\d+(\.\d{1,2})?$/.test(value),
       "Costo invalido"
     ),
+  garantia: z
+    .string()
+    .optional()
+    .refine((value) => !value || /^\d+$/.test(value), "Garantia invalida"),
   proveedor: z.string().optional(),
   sena: z
     .string()
@@ -78,6 +82,10 @@ export const ordenUpdateFormSchema = z.object({
       (value) => !value || /^\d+(\.\d{1,2})?$/.test(value),
       "Costo invalido"
     ),
+  garantia: z
+    .string()
+    .optional()
+    .refine((value) => !value || /^\d+$/.test(value), "Garantia invalida"),
   proveedor: z.string().optional(),
   sena: z
     .string()

@@ -75,6 +75,7 @@ export function OrdenDetalle() {
       costo_estimado: "",
       costo_bruto: "",
       costo_revision: "",
+      garantia: "",
       costo_final: "",
       proveedor: "",
       notas: ""
@@ -99,6 +100,10 @@ export function OrdenDetalle() {
       costo_revision:
         orden.costo_revision !== null && orden.costo_revision !== undefined
           ? String(orden.costo_revision)
+          : "",
+      garantia:
+        orden.garantia !== null && orden.garantia !== undefined
+          ? String(orden.garantia)
           : "",
       costo_final:
         orden.costo_final !== null && orden.costo_final !== undefined
@@ -138,6 +143,7 @@ export function OrdenDetalle() {
     if (values.costo_estimado) payload.costo_estimado = Number(values.costo_estimado);
     if (values.costo_bruto) payload.costo_bruto = Number(values.costo_bruto);
     if (values.costo_revision) payload.costo_revision = Number(values.costo_revision);
+    if (values.garantia) payload.garantia = Number(values.garantia);
     if (values.costo_final) payload.costo_final = Number(values.costo_final);
     if (proveedorFinal) payload.proveedor = proveedorFinal;
     if (values.notas) payload.notas = values.notas;
@@ -329,6 +335,12 @@ export function OrdenDetalle() {
                 <span>Costo revision</span>
                 <span className="font-semibold text-ink">
                   ${orden.costo_revision ?? "-"}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span>Garantía (días)</span>
+                <span className="font-semibold text-ink">
+                  {orden.garantia ?? 30}
                 </span>
               </div>
               <div className="flex items-center justify-between">
@@ -540,6 +552,16 @@ export function OrdenDetalle() {
                   </p>
                 ) : null}
               </div>
+            </div>
+
+            <div>
+              <label className="text-sm font-semibold">Garantía (días)</label>
+              <Input placeholder="30" {...register("garantia")} />
+              {errors.garantia ? (
+                <p className="mt-1 text-xs text-ember">
+                  {errors.garantia.message}
+                </p>
+              ) : null}
             </div>
 
             <div>

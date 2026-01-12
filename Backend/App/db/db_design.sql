@@ -23,6 +23,7 @@ CREATE TABLE public.ordenes_de_trabajo (
   diagnostico text,
   presupuesto bigint,
   costo_bruto numeric,
+  garantia integer DEFAULT 30,
   senia bigint,
   notas text,
   proveedor text,

@@ -58,6 +58,7 @@ export function NuevaOrden() {
       costo_estimado: "",
       costo_bruto: "",
       costo_revision: "",
+      garantia: "30",
       proveedor: "",
       sena: "",
       notas: ""
@@ -108,6 +109,9 @@ export function NuevaOrden() {
       costo_revision: values.costo_revision
         ? Number(values.costo_revision)
         : undefined,
+      garantia: values.garantia
+        ? Number(values.garantia)
+        : undefined,
       proveedor:
         proveedorSeleccionado === "Otros..."
           ? values.proveedor?.trim() || undefined
@@ -135,6 +139,7 @@ export function NuevaOrden() {
         costo_estimado: "",
       costo_bruto: "",
       costo_revision: "",
+      garantia: "30",
       proveedor: "",
       sena: "",
       notas: ""
@@ -346,6 +351,16 @@ export function NuevaOrden() {
                 </p>
               ) : null}
             </div>
+          </div>
+
+          <div>
+            <label className="text-sm font-semibold">Garantía (días)</label>
+            <Input placeholder="30" {...register("garantia")} />
+            {errors.garantia ? (
+              <p className="mt-1 text-xs text-ember">
+                {errors.garantia.message}
+              </p>
+            ) : null}
           </div>
 
           <div>
