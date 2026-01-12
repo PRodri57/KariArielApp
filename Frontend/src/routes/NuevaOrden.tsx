@@ -9,7 +9,7 @@ import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
 import { useClientes } from "@/hooks/clientes";
 import { useCreateOrden } from "@/hooks/ordenes";
-import { useTelefonos } from "@/hooks/telefonos";
+import { useCreateTelefono, useTelefonos } from "@/hooks/telefonos";
 import { ordenFormSchema, type OrdenFormValues } from "@/lib/validation";
 
 const proveedores = [
@@ -39,6 +39,13 @@ export function NuevaOrden() {
   const { data: clientes = [] } = useClientes();
   const { data: telefonos = [] } = useTelefonos();
   const createOrden = useCreateOrden();
+  const createTelefono = useCreateTelefono();
+  const [nuevoTelefono, setNuevoTelefono] = useState({
+    marca: "",
+    modelo: "",
+    notas: ""
+  });
+  const [errorTelefono, setErrorTelefono] = useState<string | null>(null);
   const {
     register,
     handleSubmit,
@@ -137,13 +144,13 @@ export function NuevaOrden() {
         problema: "",
         diagnostico: "",
         costo_estimado: "",
-      costo_bruto: "",
-      costo_revision: "",
-      garantia: "30",
-      proveedor: "",
-      sena: "",
-      notas: ""
-    });
+        costo_bruto: "",
+        costo_revision: "",
+        garantia: "30",
+        proveedor: "",
+        sena: "",
+        notas: ""
+      });
       setProveedorSeleccionado("");
     } catch (error) {
       const message =
@@ -164,6 +171,33 @@ export function NuevaOrden() {
       setDniEncontrado("encontrado");
     } else {
       setDniEncontrado("no-encontrado");
+    }
+  };
+
+  const agregarTelefonoRapido = async () => {
+    setErrorTelefono(null);
+    const clienteId = Number(clienteSeleccionado);
+    if (!clienteId) {
+      setErrorTelefono("Selecciona un cliente primero.");
+      return;
+    }
+    if (!nuevoTelefono.marca.trim() || !nuevoTelefono.modelo.trim()) {
+      setErrorTelefono("Marca y modelo son obligatorios.");
+      return;
+    }
+    try {
+      const result = await createTelefono.mutateAsync({
+        cliente_id: clienteId,
+        marca: nuevoTelefono.marca.trim(),
+        modelo: nuevoTelefono.modelo.trim(),
+        notas: nuevoTelefono.notas.trim() || undefined
+      });
+      setValue("telefono_id", String(result.id));
+      setNuevoTelefono({ marca: "", modelo: "", notas: "" });
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "No se pudo crear el telefono.";
+      setErrorTelefono(message);
     }
   };
 
@@ -262,9 +296,73 @@ export function NuevaOrden() {
             </div>
           ) : null}
 
-          {clienteSeleccionado && telefonosFiltrados.length === 0 ? (
-            <div className="rounded-2xl border border-ink/10 bg-ink/5 px-4 py-3 text-sm text-ink/70">
-              Este cliente aun no tiene telefonos cargados.
+          {clienteSeleccionado ? (
+            <div className="rounded-2xl border border-ink/10 bg-ink/5 px-4 py-3">
+              <p className="text-sm font-semibold text-ink">
+                Agregar telefono rapido
+              </p>
+              <div className="mt-3 grid gap-3 md:grid-cols-2">
+                <div>
+                  <label className="text-xs font-semibold">Marca</label>
+                  <Input
+                    placeholder="Samsung"
+                    value={nuevoTelefono.marca}
+                    onChange={(event) =>
+                      setNuevoTelefono((prev) => ({
+                        ...prev,
+                        marca: event.target.value
+                      }))
+                    }
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold">Modelo</label>
+                  <Input
+                    placeholder="A52"
+                    value={nuevoTelefono.modelo}
+                    onChange={(event) =>
+                      setNuevoTelefono((prev) => ({
+                        ...prev,
+                        modelo: event.target.value
+                      }))
+                    }
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="text-xs font-semibold">Notas</label>
+                  <Textarea
+                    placeholder="Detalle de equipo, repuestos..."
+                    value={nuevoTelefono.notas}
+                    onChange={(event) =>
+                      setNuevoTelefono((prev) => ({
+                        ...prev,
+                        notas: event.target.value
+                      }))
+                    }
+                  />
+                </div>
+              </div>
+              {errorTelefono ? (
+                <p className="mt-2 text-xs text-ember">{errorTelefono}</p>
+              ) : null}
+              <div className="mt-3">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={agregarTelefonoRapido}
+                  disabled={createTelefono.isPending}
+                >
+                  {createTelefono.isPending
+                    ? "Agregando..."
+                    : "Agregar telefono"}
+                </Button>
+              </div>
+              {telefonosFiltrados.length === 0 ? (
+                <p className="mt-3 text-xs text-ink/60">
+                  Este cliente aun no tiene telefonos cargados.
+                </p>
+              ) : null}
             </div>
           ) : null}
 

@@ -96,7 +96,16 @@ def _draw_boxed_text(
     line_height: float,
     padding: float,
 ) -> float:
-    lines = _wrap_text(text, font_name, font_size, width - 2 * padding)
+    blocks = text.split("\n")
+    lines: list[str] = []
+    for block in blocks:
+        block = block.strip()
+        if not block:
+            lines.append("")
+            continue
+        lines.extend(
+            _wrap_text(block, font_name, font_size, width - 2 * padding)
+        )
     available_height = y_top - min_y
     max_lines = int((available_height - 2 * padding) // line_height)
     if max_lines < 1:
@@ -145,47 +154,6 @@ def _draw_section(
     left_bound = x
     right_bound = page_width - x
     full_width = right_bound - left_bound
-
-    aviso_principal = (
-        "Queda notificado que el presupuesto se congelará con una seña "
-        "mayor o igual al 50%, durante 30 días corridos, luego de "
-        "recibida la seña. En caso de haber concluido el plazo, el "
-        "presupuesto se actualizará al precio del momento. "
-        "Una vez reparado el equipo, y notificado, cuenta con 45 días "
-        "para retirar del equipo en Barnetche 2283 o en Dominicis 815, "
-        "Campana. Caso contrario, será aplicable la normativa vigente "
-        "del CCyCN y ccdts. (Cosa mueble abandonada por su Propietario). "
-        "Por cuestiones de seguridad, el equipo sólo podrá retirarse con este comprobante."
-    )
-    aviso_importante = (
-        "Importante: No dejar en el teléfono Chip ni tarjeta de memoria."
-    )
-    y = _draw_boxed_text(
-        pdf,
-        aviso_principal,
-        left_bound,
-        y,
-        full_width,
-        content_min_y,
-        font_name,
-        7.5,
-        9,
-        4,
-    )
-    y -= 8
-    y = _draw_boxed_text(
-        pdf,
-        aviso_importante,
-        left_bound,
-        y,
-        full_width,
-        content_min_y,
-        font_name,
-        8,
-        9,
-        4,
-    )
-    y -= 14
 
     total_senas = orden.total_senas
     if total_senas is None:
@@ -286,7 +254,7 @@ def _draw_section(
     y -= 6
     pdf.setFont("Helvetica-Bold", 11)
     y = _draw_lines(
-        pdf, ["Historial de senas"], x, y, line_height, content_min_y
+        pdf, ["Historial de señas"], x, y, line_height, content_min_y
     )
     pdf.setFont(font_name, font_size)
     if not senas:
@@ -316,6 +284,50 @@ def _draw_section(
                 full_width,
             )
 
+    aviso_principal = (
+        "Queda notificado que el presupuesto se congelará con una seña "
+        "mayor o igual al 50%, durante 30 días corridos, luego de "
+        "recibida la seña. En caso de haber concluido el plazo, el "
+        "presupuesto se actualizará al precio del momento. "
+        "Una vez reparado el equipo, y notificado, cuenta con 45 días "
+        "para retirar del equipo en Barnetche 2283 o en Dominicis 815, "
+        "Campana. Caso contrario, será aplicable la normativa vigente "
+        "del CCyCN y ccdts. (Cosa mueble abandonada por su Propietario)."
+        "\n"
+        "Por cuestiones de seguridad, el equipo sólo podrá retirarse con este comprobante."
+    )
+    aviso_importante = (
+        "Importante: No dejar en el teléfono Chip ni tarjeta de memoria."
+    )
+
+    y -= 12
+    y = _draw_boxed_text(
+        pdf,
+        aviso_principal,
+        left_bound,
+        y,
+        full_width,
+        content_min_y,
+        font_name,
+        7.5,
+        9,
+        4,
+    )
+    y -= 10
+    y = _draw_boxed_text(
+        pdf,
+        aviso_importante,
+        left_bound,
+        y,
+        full_width,
+        content_min_y,
+        font_name,
+        8,
+        9,
+        4,
+    )
+    y -= 10
+
     pdf.setFont("Helvetica", 10)
     firma_y = y_min + 14 * mm
     pdf.drawString(x, firma_y, "Firma del cliente:")
@@ -330,7 +342,7 @@ def generar_comprobante_pdf(
     width, height = A4
 
     margin = 15 * mm
-    gap = 12 * mm
+    gap = 16 * mm
     x = 18 * mm
 
     available = height - 2 * margin - gap
