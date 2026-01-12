@@ -315,11 +315,15 @@ export function OrdenDetalle() {
                   ${totalSenas}
                 </span>
               </div>
-              <div className="flex items-center justify-between">
-                <span>Resto a pagar</span>
-                <span className="font-semibold text-ink">
-                  ${restoPagar ?? "-"}
-                </span>
+              <div className="border-y border-ink/10 py-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs uppercase tracking-[0.3em] text-ink/50">
+                    Resto a pagar
+                  </span>
+                  <span className="text-2xl font-semibold text-moss">
+                    ${restoPagar ?? "-"}
+                  </span>
+                </div>
               </div>
               <div className="flex items-center justify-between">
                 <span>Costo revision</span>

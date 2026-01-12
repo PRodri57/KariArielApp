@@ -122,10 +122,7 @@ export function Ordenes() {
                   ? format(parseISO(orden.fecha_retiro), "dd/MM/yyyy")
                   : "-"}
               </span>
-              <span
-                className="text-ink/60 truncate"
-                title={orden.problema ?? "-"}
-              >
+              <span className="text-ink/60 break-words">
                 {orden.problema ?? "-"}
               </span>
             </div>

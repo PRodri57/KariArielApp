@@ -120,7 +120,6 @@ def _draw_section(
         ("Orden", f"#{orden.numero_orden}"),
         ("Ingreso", _fmt_fecha(orden.fecha_ingreso)),
         ("Retiro", _fmt_fecha(orden.fecha_retiro)),
-        ("Cliente", orden.cliente_nombre or "-"),
         (
             "Telefono",
             orden.telefono_label
