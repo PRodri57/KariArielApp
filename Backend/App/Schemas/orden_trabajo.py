@@ -25,7 +25,6 @@ class OrdenTrabajoCreate(BaseModel):
     costo_revision: Optional[int] = Field(None, ge=0)
     proveedor: Optional[str] = None
     sena: Optional[int] = Field(None, ge=0)
-    sena_revision: Optional[int] = Field(None, ge=0)
     notas: Optional[str] = None
 
 
@@ -53,7 +52,6 @@ class OrdenTrabajoOut(BaseModel):
     costo_final: Optional[int] = None
     proveedor: Optional[str] = None
     sena: Optional[int] = Field(default=None, validation_alias="sena")
-    sena_revision: Optional[int] = None
     total_senas: Optional[int] = None
     resto_pagar: Optional[int] = None
     notas: Optional[str] = None
@@ -72,7 +70,6 @@ class OrdenTrabajoUpdate(BaseModel):
     costo_final: Optional[int] = Field(None, ge=0)
     proveedor: Optional[str] = None
     sena: Optional[int] = Field(None, ge=0)
-    sena_revision: Optional[int] = Field(None, ge=0)
     notas: Optional[str] = None
 
 

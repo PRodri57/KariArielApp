@@ -77,7 +77,6 @@ export function OrdenDetalle() {
       costo_revision: "",
       costo_final: "",
       proveedor: "",
-      sena_revision: "",
       notas: ""
     }
   });
@@ -106,10 +105,6 @@ export function OrdenDetalle() {
           ? String(orden.costo_final)
           : "",
       proveedor: orden.proveedor ?? "",
-      sena_revision:
-        orden.sena_revision !== null && orden.sena_revision !== undefined
-          ? String(orden.sena_revision)
-          : "",
       notas: orden.notas ?? ""
     });
     if (orden.proveedor && proveedores.includes(orden.proveedor)) {
@@ -145,7 +140,6 @@ export function OrdenDetalle() {
     if (values.costo_revision) payload.costo_revision = Number(values.costo_revision);
     if (values.costo_final) payload.costo_final = Number(values.costo_final);
     if (proveedorFinal) payload.proveedor = proveedorFinal;
-    if (values.sena_revision) payload.sena_revision = Number(values.sena_revision);
     if (values.notas) payload.notas = values.notas;
 
     await updateOrden.mutateAsync(payload);
@@ -273,6 +267,18 @@ export function OrdenDetalle() {
                   {orden.telefono_label ?? `Telefono #${orden.telefono_id}`}
                 </span>
               </div>
+              <div className="grid gap-1">
+                <span>Problema reportado</span>
+                <span className="font-semibold text-ink break-words">
+                  {orden.problema ?? "-"}
+                </span>
+              </div>
+              <div className="grid gap-1">
+                <span>Diagnostico</span>
+                <span className="font-semibold text-ink break-words">
+                  {orden.diagnostico ?? "-"}
+                </span>
+              </div>
               <div className="flex items-center justify-between">
                 <span>Ingreso</span>
                 <span className="font-semibold text-ink">
@@ -292,7 +298,7 @@ export function OrdenDetalle() {
                 <StatusBadge estado={orden.estado} />
               </div>
               <div className="flex items-center justify-between">
-                <span>Costo estimado</span>
+                <span>Presupuesto</span>
                 <span className="font-semibold text-ink">
                   ${orden.costo_estimado ?? "-"}
                 </span>
@@ -319,12 +325,6 @@ export function OrdenDetalle() {
                 <span>Costo revision</span>
                 <span className="font-semibold text-ink">
                   ${orden.costo_revision ?? "-"}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span>Sena revision</span>
-                <span className="font-semibold text-ink">
-                  ${orden.sena_revision ?? "-"}
                 </span>
               </div>
               <div className="flex items-center justify-between">
@@ -487,7 +487,7 @@ export function OrdenDetalle() {
             </div>
 
             <div>
-              <label className="text-sm font-semibold">Problema</label>
+              <label className="text-sm font-semibold">Problema reportado</label>
               <Textarea {...register("problema")} />
             </div>
 
@@ -498,7 +498,7 @@ export function OrdenDetalle() {
 
             <div className="grid gap-4 md:grid-cols-2">
               <div>
-                <label className="text-sm font-semibold">Costo estimado</label>
+                <label className="text-sm font-semibold">Presupuesto</label>
                 <Input placeholder="15000" {...register("costo_estimado")} />
                 {errors.costo_estimado ? (
                   <p className="mt-1 text-xs text-ember">
@@ -538,51 +538,40 @@ export function OrdenDetalle() {
               </div>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2">
-              <div>
-                <label className="text-sm font-semibold">Proveedor</label>
-                <Select
-                  value={proveedorSeleccionado}
-                  onChange={(event) => {
-                    setProveedorSeleccionado(event.target.value);
-                    if (event.target.value !== "Otros...") {
-                      setValue("proveedor", "");
-                      clearErrors("proveedor");
-                    }
-                  }}
-                >
-                  <option value="">Seleccionar proveedor</option>
-                  {proveedores.map((proveedor) => (
-                    <option key={proveedor} value={proveedor}>
-                      {proveedor}
-                    </option>
-                  ))}
-                </Select>
-                {proveedorSeleccionado === "Otros..." ? (
-                  <div className="mt-3">
-                    <Input
-                      placeholder="Proveedor"
-                      {...register("proveedor", {
-                        onChange: () => clearErrors("proveedor")
-                      })}
-                    />
-                  </div>
-                ) : null}
-                {proveedorSeleccionado === "Otros..." && errors.proveedor ? (
-                  <p className="mt-1 text-xs text-ember">
-                    {errors.proveedor.message}
-                  </p>
-                ) : null}
-              </div>
-              <div>
-                <label className="text-sm font-semibold">Sena revision</label>
-                <Input placeholder="1500" {...register("sena_revision")} />
-                {errors.sena_revision ? (
-                  <p className="mt-1 text-xs text-ember">
-                    {errors.sena_revision.message}
-                  </p>
-                ) : null}
-              </div>
+            <div>
+              <label className="text-sm font-semibold">Proveedor</label>
+              <Select
+                value={proveedorSeleccionado}
+                onChange={(event) => {
+                  setProveedorSeleccionado(event.target.value);
+                  if (event.target.value !== "Otros...") {
+                    setValue("proveedor", "");
+                    clearErrors("proveedor");
+                  }
+                }}
+              >
+                <option value="">Seleccionar proveedor</option>
+                {proveedores.map((proveedor) => (
+                  <option key={proveedor} value={proveedor}>
+                    {proveedor}
+                  </option>
+                ))}
+              </Select>
+              {proveedorSeleccionado === "Otros..." ? (
+                <div className="mt-3">
+                  <Input
+                    placeholder="Proveedor"
+                    {...register("proveedor", {
+                      onChange: () => clearErrors("proveedor")
+                    })}
+                  />
+                </div>
+              ) : null}
+              {proveedorSeleccionado === "Otros..." && errors.proveedor ? (
+                <p className="mt-1 text-xs text-ember">
+                  {errors.proveedor.message}
+                </p>
+              ) : null}
             </div>
 
             <div>

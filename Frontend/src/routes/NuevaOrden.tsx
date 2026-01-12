@@ -60,7 +60,6 @@ export function NuevaOrden() {
       costo_revision: "",
       proveedor: "",
       sena: "",
-      sena_revision: "",
       notas: ""
     }
   });
@@ -114,7 +113,6 @@ export function NuevaOrden() {
           ? values.proveedor?.trim() || undefined
           : proveedorSeleccionado || undefined,
       sena: values.sena ? Number(values.sena) : undefined,
-      sena_revision: values.sena_revision ? Number(values.sena_revision) : undefined,
       notas: values.notas || undefined
     };
 
@@ -135,13 +133,12 @@ export function NuevaOrden() {
         problema: "",
         diagnostico: "",
         costo_estimado: "",
-        costo_bruto: "",
-        costo_revision: "",
-        proveedor: "",
-        sena: "",
-        sena_revision: "",
-        notas: ""
-      });
+      costo_bruto: "",
+      costo_revision: "",
+      proveedor: "",
+      sena: "",
+      notas: ""
+    });
       setProveedorSeleccionado("");
     } catch (error) {
       const message =
@@ -287,7 +284,7 @@ export function NuevaOrden() {
 
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <label className="text-sm font-semibold">Costo estimado</label>
+              <label className="text-sm font-semibold">Presupuesto</label>
               <Input placeholder="15000" {...register("costo_estimado")} />
               {errors.costo_estimado ? (
                 <p className="mt-1 text-xs text-ember">
@@ -351,23 +348,12 @@ export function NuevaOrden() {
             </div>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2">
-            <div>
-              <label className="text-sm font-semibold">Sena revision</label>
-              <Input placeholder="1500" {...register("sena_revision")} />
-              {errors.sena_revision ? (
-                <p className="mt-1 text-xs text-ember">
-                  {errors.sena_revision.message}
-                </p>
-              ) : null}
-            </div>
-            <div>
-              <label className="text-sm font-semibold">Sena</label>
-              <Input placeholder="5000" {...register("sena")} />
-              {errors.sena ? (
-                <p className="mt-1 text-xs text-ember">{errors.sena.message}</p>
-              ) : null}
-            </div>
+          <div>
+            <label className="text-sm font-semibold">Sena</label>
+            <Input placeholder="5000" {...register("sena")} />
+            {errors.sena ? (
+              <p className="mt-1 text-xs text-ember">{errors.sena.message}</p>
+            ) : null}
           </div>
 
           <div>

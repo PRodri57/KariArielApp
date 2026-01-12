@@ -41,7 +41,6 @@ export type Orden = {
   costo_revision?: number | null;
   proveedor?: string | null;
   sena?: number | null;
-  sena_revision?: number | null;
   total_senas?: number | null;
   resto_pagar?: number | null;
   notas?: string | null;
@@ -58,7 +57,6 @@ export type OrdenCreatePayload = {
   costo_revision?: number;
   proveedor?: string;
   sena?: number;
-  sena_revision?: number;
   notas?: string;
 };
 
@@ -78,7 +76,6 @@ export type OrdenUpdatePayload = {
   costo_revision?: number;
   proveedor?: string;
   sena?: number;
-  sena_revision?: number;
   notas?: string;
 };
 

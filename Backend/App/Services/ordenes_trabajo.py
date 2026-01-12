@@ -34,7 +34,11 @@ def _normalizar_sena(row: dict) -> None:
 
 
 def _agregar_totales(row: dict) -> None:
-    total_senas = row.get("sena") or row.get("senia") or 0
+    sena_val = row.get("sena")
+    if sena_val is None:
+        sena_val = row.get("senia") or 0
+    sena_revision = row.get("sena_revision") or 0
+    total_senas = sena_val + sena_revision
     row["total_senas"] = total_senas
     presupuesto = row.get("presupuesto")
     if presupuesto is None:
@@ -108,7 +112,6 @@ def crear_orden(payload: OrdenTrabajoCreate) -> dict:
         "costo_revision": payload.costo_revision,
         "proveedor": payload.proveedor,
         "sena": payload.sena,
-        "sena_revision": payload.sena_revision,
         "notas": payload.notas,
     }
     if payload.fecha_ingreso is not None:
@@ -219,7 +222,7 @@ def _obtener_orden_basica(numero_orden: int) -> Optional[dict]:
     response = execute_supabase(
         lambda: (
             supabase.table("ordenes_de_trabajo")
-            .select("id, num_orden, presupuesto, sena, senia")
+            .select("id, num_orden, presupuesto, sena, senia, sena_revision")
             .eq("num_orden", numero_orden)
             .limit(1)
             .execute()

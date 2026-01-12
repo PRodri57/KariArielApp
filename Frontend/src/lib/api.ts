@@ -106,8 +106,7 @@ const mockOrdenes: Orden[] = [
     costo_bruto: 40000,
     costo_revision: 3000,
     proveedor: "Proveedor Central",
-    sena: 5000,
-    sena_revision: 1500
+    sena: 5000
   },
   {
     id: 2,
@@ -123,8 +122,7 @@ const mockOrdenes: Orden[] = [
     costo_bruto: 22000,
     costo_revision: 2500,
     proveedor: null,
-    sena: null,
-    sena_revision: null
+    sena: null
   }
 ];
 
@@ -373,7 +371,6 @@ export async function createOrden(
       costo_revision: payload.costo_revision ?? null,
       proveedor: payload.proveedor ?? null,
       sena: payload.sena ?? null,
-      sena_revision: payload.sena_revision ?? null,
       notas: payload.notas ?? null
     });
     return { numero_orden };
@@ -429,10 +426,6 @@ export async function updateOrden(payload: OrdenUpdatePayload): Promise<Orden> {
           : current.proveedor ?? null,
       sena:
         payload.sena !== undefined ? payload.sena : current.sena ?? null,
-      sena_revision:
-        payload.sena_revision !== undefined
-          ? payload.sena_revision
-          : current.sena_revision ?? null,
       notas:
         payload.notas !== undefined ? payload.notas : current.notas ?? null
     };

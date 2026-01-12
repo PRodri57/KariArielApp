@@ -70,7 +70,7 @@ export function Ordenes() {
           <span>Estado</span>
           <span>Ingreso</span>
           <span>Retiro</span>
-          <span>Proveedor</span>
+          <span>Problema reportado</span>
         </div>
         <div className="divide-y divide-ink/10">
           {isLoading ? (
@@ -122,7 +122,12 @@ export function Ordenes() {
                   ? format(parseISO(orden.fecha_retiro), "dd/MM/yyyy")
                   : "-"}
               </span>
-              <span className="text-ink/60">{orden.proveedor ?? "-"}</span>
+              <span
+                className="text-ink/60 truncate"
+                title={orden.problema ?? "-"}
+              >
+                {orden.problema ?? "-"}
+              </span>
             </div>
           ))}
         </div>

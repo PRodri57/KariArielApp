@@ -34,13 +34,6 @@ export const ordenFormSchema = z.object({
       (value) => !value || /^\d+(\.\d{1,2})?$/.test(value),
       "Sena invalida"
     ),
-  sena_revision: z
-    .string()
-    .optional()
-    .refine(
-      (value) => !value || /^\d+(\.\d{1,2})?$/.test(value),
-      "Sena invalida"
-    ),
   notas: z.string().optional()
 });
 
@@ -87,13 +80,6 @@ export const ordenUpdateFormSchema = z.object({
     ),
   proveedor: z.string().optional(),
   sena: z
-    .string()
-    .optional()
-    .refine(
-      (value) => !value || /^\d+(\.\d{1,2})?$/.test(value),
-      "Sena invalida"
-    ),
-  sena_revision: z
     .string()
     .optional()
     .refine(

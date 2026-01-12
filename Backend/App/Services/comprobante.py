@@ -128,9 +128,8 @@ def _draw_section(
         ),
         ("Problema", orden.problema or "-"),
         ("Diagnostico", orden.diagnostico or "-"),
-        ("Costo estimado", _fmt_monto(orden.costo_estimado)),
+        ("Presupuesto", _fmt_monto(orden.costo_estimado)),
         ("Costo revision", _fmt_monto(orden.costo_revision)),
-        ("Seña revisión", _fmt_monto(orden.sena_revision)),
         ("Total señas", _fmt_monto(total_senas)),
         ("Resto a pagar", _fmt_monto(resto_pagar)),
     ]
