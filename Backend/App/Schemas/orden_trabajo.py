@@ -39,6 +39,9 @@ class OrdenTrabajoOut(BaseModel):
     telefono_id: Optional[int] = Field(default=None, validation_alias="tel_id")
     cliente_id: Optional[int] = None
     cliente_nombre: Optional[str] = None
+    cliente_dni: Optional[str] = None
+    cliente_telefono_contacto: Optional[str] = None
+    cliente_email: Optional[str] = None
     telefono_label: Optional[str] = None
     estado: Optional[OrdenEstado] = None
     fecha_ingreso: Optional[date] = Field(default=None, validation_alias="ingreso")

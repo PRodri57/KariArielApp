@@ -2,8 +2,11 @@ from datetime import date, datetime
 from io import BytesIO
 from typing import Iterable
 
+import os
+
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import mm
+from reportlab.lib.utils import ImageReader
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfgen import canvas
 
@@ -137,9 +140,28 @@ def _draw_section(
     y_start: float,
     y_min: float,
     page_width: float,
+    include_cliente: bool,
+    include_firma: bool,
 ) -> None:
-    signature_height = 22 * mm
+    signature_height = 14 * mm if include_firma else 0
     content_min_y = y_min + signature_height
+
+    logo_path = os.path.join(os.path.dirname(__file__), "LOGO KariAriel IG.jpg")
+    if os.path.exists(logo_path):
+        logo = ImageReader(logo_path)
+        logo_width = 24 * mm
+        logo_height = 24 * mm
+        logo_x = page_width - x - logo_width
+        logo_y = y_start - logo_height + 10
+        pdf.drawImage(
+            logo,
+            logo_x,
+            logo_y,
+            width=logo_width,
+            height=logo_height,
+            preserveAspectRatio=True,
+            mask="auto",
+        )
 
     pdf.setFont("Helvetica-Bold", 16)
     pdf.drawString(x, y_start, "KARI ARIEL")
@@ -147,9 +169,9 @@ def _draw_section(
     pdf.drawString(x, y_start - 14, "Servicio técnico de celulares")
     pdf.drawString(x, y_start - 26, "Dominicis 815, Campana")
     pdf.drawString(x, y_start - 38, "Whatsapp 3489 515072")
-    y = y_start - 52
+    y = y_start - 52 - 24
     font_name = "Helvetica"
-    font_size = 10
+    font_size = 9
     pdf.setFont(font_name, font_size)
     left_bound = x
     right_bound = page_width - x
@@ -172,6 +194,18 @@ def _draw_section(
         ("Orden", f"#{orden.numero_orden}"),
         ("Ingreso", _fmt_fecha(orden.fecha_ingreso)),
         ("Retiro", "__/__/____"),
+    ]
+    if include_cliente:
+        detalles.extend(
+            [
+                ("Cliente", orden.cliente_nombre or "-"),
+                ("DNI", orden.cliente_dni or "-"),
+                ("Contacto", orden.cliente_telefono_contacto or "-"),
+                ("Email", orden.cliente_email or "-"),
+            ]
+        )
+    detalles.extend(
+        [
         (
             "Telefono",
             orden.telefono_label
@@ -184,40 +218,38 @@ def _draw_section(
         ("Garantía (días)", _fmt_monto(orden.garantia)),
         ("Total señas", _fmt_monto(total_senas)),
         ("Resto a pagar", _fmt_monto(resto_pagar)),
-    ]
+        ]
+    )
 
     line_height = 12
-    col_gap = 10 * mm
+    col_gap = 6 * mm
     available_width = right_bound - left_bound
-    col_width = (available_width - col_gap) / 2
-    label_width = min(32 * mm, col_width * 0.45)
+    col_width = (available_width - 2 * col_gap) / 3
+    label_width = min(26 * mm, col_width * 0.5)
     value_width = col_width - label_width
-    left_value_x = left_bound + label_width
-    right_col_x = left_bound + col_width + col_gap
-    right_value_x = right_col_x + label_width
+    col_x = [
+        left_bound,
+        left_bound + col_width + col_gap,
+        left_bound + 2 * (col_width + col_gap),
+    ]
+    value_x = [col + label_width for col in col_x]
 
     y_current = y
-    filas: list[tuple[tuple[str, str], tuple[str, str] | None]] = []
-    for idx in range(0, len(detalles), 2):
-        izquierda = detalles[idx]
-        derecha = detalles[idx + 1] if idx + 1 < len(detalles) else None
-        filas.append((izquierda, derecha))
+    filas: list[list[tuple[str, str]]] = []
+    for idx in range(0, len(detalles), 3):
+        filas.append(detalles[idx : idx + 3])
 
     truncado = False
-    for izquierda, derecha in filas:
-        etiqueta_izq, valor_izq = izquierda
-        lineas_izq = _wrap_text(
-            valor_izq, font_name, font_size, value_width
-        )
-        if derecha:
-            etiqueta_der, valor_der = derecha
-            lineas_der = _wrap_text(
-                valor_der, font_name, font_size, value_width
+    for fila in filas:
+        lineas_por_columna: list[list[str]] = []
+        for item in fila:
+            _, valor = item
+            lineas_por_columna.append(
+                _wrap_text(valor, font_name, font_size, value_width)
             )
-        else:
-            etiqueta_der = ""
-            lineas_der = []
-        lineas_fila = max(len(lineas_izq), len(lineas_der), 1)
+        lineas_fila = max(
+            [len(lineas) for lineas in lineas_por_columna] + [1]
+        )
 
         for indice in range(lineas_fila):
             if y_current < content_min_y:
@@ -225,34 +257,29 @@ def _draw_section(
                 y_current = content_min_y - line_height
                 truncado = True
                 break
-            if indice == 0:
-                pdf.drawString(left_bound, y_current, f"{etiqueta_izq}:")
-                if lineas_izq:
-                    pdf.drawString(left_value_x, y_current, lineas_izq[0])
-                if derecha:
-                    pdf.drawString(
-                        right_col_x, y_current, f"{etiqueta_der}:"
-                    )
-                    if lineas_der:
+            for col_idx, item in enumerate(fila):
+                etiqueta, _ = item
+                lineas_valor = lineas_por_columna[col_idx]
+                if indice == 0:
+                    pdf.drawString(col_x[col_idx], y_current, f"{etiqueta}:")
+                    if lineas_valor:
                         pdf.drawString(
-                            right_value_x, y_current, lineas_der[0]
+                            value_x[col_idx], y_current, lineas_valor[0]
                         )
-            else:
-                if indice < len(lineas_izq):
-                    pdf.drawString(
-                        left_value_x, y_current, lineas_izq[indice]
-                    )
-                if derecha and indice < len(lineas_der):
-                    pdf.drawString(
-                        right_value_x, y_current, lineas_der[indice]
-                    )
+                else:
+                    if indice < len(lineas_valor):
+                        pdf.drawString(
+                            value_x[col_idx],
+                            y_current,
+                            lineas_valor[indice],
+                        )
             y_current -= line_height
         if truncado:
             break
     y = y_current
 
     y -= 6
-    pdf.setFont("Helvetica-Bold", 11)
+    pdf.setFont("Helvetica-Bold", 10)
     y = _draw_lines(
         pdf, ["Historial de señas"], x, y, line_height, content_min_y
     )
@@ -328,10 +355,11 @@ def _draw_section(
     )
     y -= 10
 
-    pdf.setFont("Helvetica", 10)
-    firma_y = y_min + 14 * mm
-    pdf.drawString(x, firma_y, "Firma del cliente:")
-    pdf.line(x + 40 * mm, firma_y - 2, page_width - x, firma_y - 2)
+    if include_firma:
+        pdf.setFont("Helvetica", 10)
+        firma_y = y_min + 8 * mm
+        pdf.drawString(x, firma_y, "Firma del cliente:")
+        pdf.line(x + 40 * mm, firma_y - 2, page_width - x, firma_y - 2)
 
 
 def generar_comprobante_pdf(
@@ -342,7 +370,7 @@ def generar_comprobante_pdf(
     width, height = A4
 
     margin = 15 * mm
-    gap = 16 * mm
+    gap = 15 * mm
     x = 18 * mm
 
     available = height - 2 * margin - gap
@@ -352,10 +380,14 @@ def generar_comprobante_pdf(
     bottom_y = top_min - gap
     bottom_min = margin
 
-    _draw_section(pdf, orden, senas, x, top_y, top_min, width)
+    _draw_section(
+        pdf, orden, senas, x, top_y, top_min, width, False, False
+    )
     pdf.setLineWidth(0.5)
     pdf.line(margin, bottom_y + gap / 2, width - margin, bottom_y + gap / 2)
-    _draw_section(pdf, orden, senas, x, bottom_y, bottom_min, width)
+    _draw_section(
+        pdf, orden, senas, x, bottom_y, bottom_min, width, True, True
+    )
 
     pdf.save()
     buffer.seek(0)

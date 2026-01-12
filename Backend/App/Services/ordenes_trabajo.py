@@ -69,6 +69,15 @@ def _enriquecer_relaciones(row: dict) -> None:
         nombre = cliente.get("nyape")
         if nombre:
             row["cliente_nombre"] = nombre
+        dni = cliente.get("dni")
+        if dni is not None:
+            row["cliente_dni"] = str(dni)
+        telefono_contacto = cliente.get("tel_contacto")
+        if telefono_contacto:
+            row["cliente_telefono_contacto"] = telefono_contacto
+        email = cliente.get("email")
+        if email:
+            row["cliente_email"] = email
 
 
 def telefono_existe(telefono_id: int) -> bool:
@@ -141,7 +150,7 @@ def listar_ordenes() -> list[dict]:
         lambda: (
             supabase.table("ordenes_de_trabajo")
             .select(
-                "*, telefonos (id, marca, modelo, cliente_id, clientes (id, nyape))"
+                "*, telefonos (id, marca, modelo, cliente_id, clientes (id, nyape, dni, tel_contacto, email))"
             )
             .order("num_orden", desc=True)
             .execute()
@@ -162,7 +171,7 @@ def obtener_orden_por_numero(numero_orden: int) -> Optional[dict]:
         lambda: (
             supabase.table("ordenes_de_trabajo")
             .select(
-                "*, telefonos (id, marca, modelo, cliente_id, clientes (id, nyape))"
+                "*, telefonos (id, marca, modelo, cliente_id, clientes (id, nyape, dni, tel_contacto, email))"
             )
             .eq("num_orden", numero_orden)
             .limit(1)
