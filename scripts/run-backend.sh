@@ -17,6 +17,36 @@ export CORS_ORIGINS="${CORS_ORIGINS:-$DEFAULT_CORS}"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+VENV_DIR="$ROOT_DIR/.venv"
+REQ_FILE="$ROOT_DIR/requirements.txt"
+
+if [[ ! -x "$VENV_DIR/bin/python" ]]; then
+  echo "Creando virtualenv en $VENV_DIR"
+  if command -v python3 >/dev/null 2>&1; then
+    PYTHON_BIN="python3"
+  elif command -v python >/dev/null 2>&1; then
+    PYTHON_BIN="python"
+  else
+    echo "Error: no se encontro python para crear el virtualenv." >&2
+    exit 1
+  fi
+  "$PYTHON_BIN" -m venv "$VENV_DIR"
+  "$VENV_DIR/bin/python" -m ensurepip --upgrade
+  "$VENV_DIR/bin/python" -m pip install --upgrade pip
+  if [[ -f "$REQ_FILE" ]]; then
+    "$VENV_DIR/bin/python" -m pip install -r "$REQ_FILE"
+  fi
+else
+  if ! "$VENV_DIR/bin/python" -c "import uvicorn" >/dev/null 2>&1; then
+    echo "Uvicorn no encontrado en $VENV_DIR; reinstalando dependencias."
+    "$VENV_DIR/bin/python" -m ensurepip --upgrade
+    "$VENV_DIR/bin/python" -m pip install --upgrade pip
+    if [[ -f "$REQ_FILE" ]]; then
+      "$VENV_DIR/bin/python" -m pip install -r "$REQ_FILE"
+    fi
+  fi
+fi
+
 cd "$ROOT_DIR/Backend"
 
 echo "Starting backend on 0.0.0.0:${PORT}"
