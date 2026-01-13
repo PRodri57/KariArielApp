@@ -30,6 +30,7 @@ export const ordenFormSchema = z.object({
     .string()
     .optional()
     .refine((value) => !value || /^\d+$/.test(value), "Garantia invalida"),
+  contrasena: z.string().optional(),
   proveedor: z.string().optional(),
   sena: z
     .string()
@@ -86,6 +87,7 @@ export const ordenUpdateFormSchema = z.object({
     .string()
     .optional()
     .refine((value) => !value || /^\d+$/.test(value), "Garantia invalida"),
+  contrasena: z.string().optional(),
   proveedor: z.string().optional(),
   sena: z
     .string()

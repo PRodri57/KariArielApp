@@ -120,6 +120,7 @@ def crear_orden(payload: OrdenTrabajoCreate) -> dict:
         "costo_bruto": payload.costo_bruto,
         "costo_revision": payload.costo_revision,
         "garantia": payload.garantia,
+        "contrasena": payload.contrasena,
         "proveedor": payload.proveedor,
         "sena": payload.sena,
         "notas": payload.notas,

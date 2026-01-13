@@ -34,6 +34,7 @@ export function NuevaOrden() {
   const [errorMensaje, setErrorMensaje] = useState<string | null>(null);
   const [dniBusqueda, setDniBusqueda] = useState("");
   const [dniEncontrado, setDniEncontrado] = useState<null | "encontrado" | "no-encontrado">(null);
+  const [mostrarTelefonoRapido, setMostrarTelefonoRapido] = useState(false);
   const [proveedorSeleccionado, setProveedorSeleccionado] = useState("");
   const [searchParams] = useSearchParams();
   const { data: clientes = [] } = useClientes();
@@ -66,6 +67,7 @@ export function NuevaOrden() {
       costo_bruto: "",
       costo_revision: "",
       garantia: "30",
+      contrasena: "",
       proveedor: "",
       sena: "",
       notas: ""
@@ -88,6 +90,17 @@ export function NuevaOrden() {
     setValue("cliente_id", String(telefono.cliente_id));
     setValue("telefono_id", String(telefonoId));
   }, [searchParams, setValue, telefonos]);
+
+  useEffect(() => {
+    const clienteId = Number(searchParams.get("cliente_id") ?? "");
+    if (!clienteId) return;
+    setValue("cliente_id", String(clienteId));
+    const cliente = clientes.find((item) => item.id === clienteId);
+    if (cliente?.dni) {
+      setDniBusqueda(cliente.dni);
+      setDniEncontrado("encontrado");
+    }
+  }, [searchParams, setValue, clientes]);
 
   useEffect(() => {
     if (!clienteSeleccionado) {
@@ -119,6 +132,7 @@ export function NuevaOrden() {
       garantia: values.garantia
         ? Number(values.garantia)
         : undefined,
+      contrasena: values.contrasena || undefined,
       proveedor:
         proveedorSeleccionado === "Otros..."
           ? values.proveedor?.trim() || undefined
@@ -147,6 +161,7 @@ export function NuevaOrden() {
         costo_bruto: "",
         costo_revision: "",
         garantia: "30",
+        contrasena: "",
         proveedor: "",
         sena: "",
         notas: ""
@@ -298,66 +313,80 @@ export function NuevaOrden() {
 
           {clienteSeleccionado ? (
             <div className="rounded-2xl border border-ink/10 bg-ink/5 px-4 py-3">
-              <p className="text-sm font-semibold text-ink">
-                Agregar telefono rapido
-              </p>
-              <div className="mt-3 grid gap-3 md:grid-cols-2">
-                <div>
-                  <label className="text-xs font-semibold">Marca</label>
-                  <Input
-                    placeholder="Samsung"
-                    value={nuevoTelefono.marca}
-                    onChange={(event) =>
-                      setNuevoTelefono((prev) => ({
-                        ...prev,
-                        marca: event.target.value
-                      }))
-                    }
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-semibold">Modelo</label>
-                  <Input
-                    placeholder="A52"
-                    value={nuevoTelefono.modelo}
-                    onChange={(event) =>
-                      setNuevoTelefono((prev) => ({
-                        ...prev,
-                        modelo: event.target.value
-                      }))
-                    }
-                  />
-                </div>
-                <div className="md:col-span-2">
-                  <label className="text-xs font-semibold">Notas</label>
-                  <Textarea
-                    placeholder="Detalle de equipo, repuestos..."
-                    value={nuevoTelefono.notas}
-                    onChange={(event) =>
-                      setNuevoTelefono((prev) => ({
-                        ...prev,
-                        notas: event.target.value
-                      }))
-                    }
-                  />
-                </div>
-              </div>
-              {errorTelefono ? (
-                <p className="mt-2 text-xs text-ember">{errorTelefono}</p>
-              ) : null}
-              <div className="mt-3">
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-sm font-semibold text-ink">
+                  Agregar telefono rapido
+                </p>
                 <Button
                   type="button"
                   size="sm"
                   variant="outline"
-                  onClick={agregarTelefonoRapido}
-                  disabled={createTelefono.isPending}
+                  onClick={() => setMostrarTelefonoRapido((prev) => !prev)}
                 >
-                  {createTelefono.isPending
-                    ? "Agregando..."
-                    : "Agregar telefono"}
+                  {mostrarTelefonoRapido ? "Ocultar" : "Agregar telefono rapido"}
                 </Button>
               </div>
+              {mostrarTelefonoRapido ? (
+                <div className="mt-3">
+                  <div className="grid gap-3 md:grid-cols-2">
+                    <div>
+                      <label className="text-xs font-semibold">Marca</label>
+                      <Input
+                        placeholder="Samsung"
+                        value={nuevoTelefono.marca}
+                        onChange={(event) =>
+                          setNuevoTelefono((prev) => ({
+                            ...prev,
+                            marca: event.target.value
+                          }))
+                        }
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-semibold">Modelo</label>
+                      <Input
+                        placeholder="A52"
+                        value={nuevoTelefono.modelo}
+                        onChange={(event) =>
+                          setNuevoTelefono((prev) => ({
+                            ...prev,
+                            modelo: event.target.value
+                          }))
+                        }
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="text-xs font-semibold">Notas</label>
+                      <Textarea
+                        placeholder="Detalle de equipo, repuestos..."
+                        value={nuevoTelefono.notas}
+                        onChange={(event) =>
+                          setNuevoTelefono((prev) => ({
+                            ...prev,
+                            notas: event.target.value
+                          }))
+                        }
+                      />
+                    </div>
+                  </div>
+                  {errorTelefono ? (
+                    <p className="mt-2 text-xs text-ember">{errorTelefono}</p>
+                  ) : null}
+                  <div className="mt-3">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={agregarTelefonoRapido}
+                      disabled={createTelefono.isPending}
+                    >
+                      {createTelefono.isPending
+                        ? "Agregando..."
+                        : "Agregar telefono"}
+                    </Button>
+                  </div>
+                </div>
+              ) : null}
               {telefonosFiltrados.length === 0 ? (
                 <p className="mt-3 text-xs text-ink/60">
                   Este cliente aun no tiene telefonos cargados.
@@ -383,6 +412,11 @@ export function NuevaOrden() {
               placeholder="Se revisa flex, se detecta humedad..."
               {...register("diagnostico")}
             />
+          </div>
+
+          <div>
+            <label className="text-sm font-semibold">Contraseña del teléfono</label>
+            <Input placeholder="PIN, patron o clave" {...register("contrasena")} />
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
@@ -479,8 +513,11 @@ export function NuevaOrden() {
               {createOrden.isPending ? "Creando..." : "Crear orden"}
             </Button>
             {numeroCreado ? (
-              <div className="rounded-2xl border border-ember/20 bg-ember/10 px-4 py-3 text-sm text-ember">
+              <div className="flex items-center gap-3 rounded-2xl border border-ember/20 bg-ember/10 px-4 py-3 text-sm text-ember">
                 Orden creada: #{numeroCreado}
+                <Link to={`/ordenes/${numeroCreado}`} className="underline">
+                  Ver orden
+                </Link>
               </div>
             ) : null}
           </div>

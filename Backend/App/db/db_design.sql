@@ -30,6 +30,7 @@ CREATE TABLE public.ordenes_de_trabajo (
   sena numeric,
   costo_revision numeric,
   sena_revision numeric,
+  contrasena text,
   CONSTRAINT ordenes_de_trabajo_pkey PRIMARY KEY (id),
   CONSTRAINT ordenes_de_trabajo_tel_id_fkey FOREIGN KEY (tel_id) REFERENCES public.telefonos(id)
 );

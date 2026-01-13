@@ -106,6 +106,7 @@ const mockOrdenes: Orden[] = [
     costo_bruto: 40000,
     costo_revision: 3000,
     garantia: 30,
+    contrasena: "1234",
     proveedor: "Proveedor Central",
     sena: 5000
   },
@@ -123,6 +124,7 @@ const mockOrdenes: Orden[] = [
     costo_bruto: 22000,
     costo_revision: 2500,
     garantia: 30,
+    contrasena: null,
     proveedor: null,
     sena: null
   }
@@ -372,6 +374,7 @@ export async function createOrden(
       costo_bruto: payload.costo_bruto ?? null,
       costo_revision: payload.costo_revision ?? null,
       garantia: payload.garantia ?? 30,
+      contrasena: payload.contrasena ?? null,
       proveedor: payload.proveedor ?? null,
       sena: payload.sena ?? null,
       notas: payload.notas ?? null
@@ -427,6 +430,10 @@ export async function updateOrden(payload: OrdenUpdatePayload): Promise<Orden> {
         payload.garantia !== undefined
           ? payload.garantia
           : current.garantia ?? null,
+      contrasena:
+        payload.contrasena !== undefined
+          ? payload.contrasena
+          : current.contrasena ?? null,
       proveedor:
         payload.proveedor !== undefined
           ? payload.proveedor

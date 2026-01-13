@@ -40,6 +40,7 @@ export type Orden = {
   costo_bruto?: number | null;
   costo_revision?: number | null;
   garantia?: number | null;
+  contrasena?: string | null;
   proveedor?: string | null;
   sena?: number | null;
   total_senas?: number | null;
@@ -57,6 +58,7 @@ export type OrdenCreatePayload = {
   costo_bruto?: number;
   costo_revision?: number;
   garantia?: number;
+  contrasena?: string;
   proveedor?: string;
   sena?: number;
   notas?: string;
@@ -77,6 +79,7 @@ export type OrdenUpdatePayload = {
   costo_bruto?: number;
   costo_revision?: number;
   garantia?: number;
+  contrasena?: string;
   proveedor?: string;
   sena?: number;
   notas?: string;

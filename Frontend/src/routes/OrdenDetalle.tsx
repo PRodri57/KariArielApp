@@ -76,6 +76,7 @@ export function OrdenDetalle() {
       costo_bruto: "",
       costo_revision: "",
       garantia: "",
+      contrasena: "",
       costo_final: "",
       proveedor: "",
       notas: ""
@@ -105,6 +106,7 @@ export function OrdenDetalle() {
         orden.garantia !== null && orden.garantia !== undefined
           ? String(orden.garantia)
           : "",
+      contrasena: orden.contrasena ?? "",
       costo_final:
         orden.costo_final !== null && orden.costo_final !== undefined
           ? String(orden.costo_final)
@@ -144,6 +146,7 @@ export function OrdenDetalle() {
     if (values.costo_bruto) payload.costo_bruto = Number(values.costo_bruto);
     if (values.costo_revision) payload.costo_revision = Number(values.costo_revision);
     if (values.garantia) payload.garantia = Number(values.garantia);
+    if (values.contrasena) payload.contrasena = values.contrasena;
     if (values.costo_final) payload.costo_final = Number(values.costo_final);
     if (proveedorFinal) payload.proveedor = proveedorFinal;
     if (values.notas) payload.notas = values.notas;
@@ -283,6 +286,12 @@ export function OrdenDetalle() {
                 <span>Diagnostico</span>
                 <span className="font-semibold text-ink break-words">
                   {orden.diagnostico ?? "-"}
+                </span>
+              </div>
+              <div className="grid gap-1">
+                <span>Contraseña del teléfono</span>
+                <span className="font-semibold text-ink break-words">
+                  {orden.contrasena ?? "-"}
                 </span>
               </div>
               <div className="flex items-center justify-between">
@@ -510,6 +519,11 @@ export function OrdenDetalle() {
             <div>
               <label className="text-sm font-semibold">Diagnostico</label>
               <Textarea {...register("diagnostico")} />
+            </div>
+
+            <div>
+              <label className="text-sm font-semibold">Contraseña del teléfono</label>
+              <Input placeholder="PIN, patron o clave" {...register("contrasena")} />
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">

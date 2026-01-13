@@ -298,7 +298,7 @@ export function ClienteDetalle() {
                           >
                             Editar
                           </Button>
-                          <Link to={`/ordenes/nueva?telefono_id=${telefono.id}`}>
+                          <Link to={`/ordenes/nueva?telefono_id=${telefono.id}&cliente_id=${telefono.cliente_id}`}>
                             <Button size="sm" variant="outline">
                               Nueva orden
                             </Button>

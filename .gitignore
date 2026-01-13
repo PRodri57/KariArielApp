@@ -1,3 +1,6 @@
 .env
 .venv
 *.pyc
+__pycache__
+*.cpython_312
+/Frontend/node_modules
