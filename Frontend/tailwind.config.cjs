@@ -3,22 +3,22 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        ink: "#f7f2e9",
-        dune: "#121413",
-        ember: "#f08a4b",
-        sea: "#4aa2ad",
-        moss: "#8d9f7a",
-        stone: "#2b2f2d",
-        soot: "#0a0c0b",
-        haze: "#181b1a"
+        ink: "rgb(var(--ink) / <alpha-value>)",
+        dune: "rgb(var(--dune) / <alpha-value>)",
+        ember: "rgb(var(--ember) / <alpha-value>)",
+        sea: "rgb(var(--sea) / <alpha-value>)",
+        moss: "rgb(var(--moss) / <alpha-value>)",
+        stone: "rgb(var(--stone) / <alpha-value>)",
+        soot: "rgb(var(--soot) / <alpha-value>)",
+        haze: "rgb(var(--haze) / <alpha-value>)"
       },
       fontFamily: {
         sans: ["Space Grotesk", "system-ui", "sans-serif"],
         display: ["Fraunces", "serif"]
       },
       boxShadow: {
-        soft: "0 24px 60px -32px rgba(16, 19, 17, 0.45)",
-        glow: "0 0 0 1px rgba(230, 127, 74, 0.35), 0 12px 30px -20px rgba(230, 127, 74, 0.8)"
+        soft: "var(--shadow-soft)",
+        glow: "var(--shadow-glow)"
       },
       keyframes: {
         float: {

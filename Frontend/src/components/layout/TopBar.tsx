@@ -1,7 +1,12 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/Button";
+import { useTheme } from "@/hooks/useTheme";
 
 export function TopBar() {
+  const { theme, toggleTheme } = useTheme();
+  const isLight = theme === "light";
+  const themeLabel = isLight ? "Modo oscuro" : "Modo claro";
+
   return (
     <div className="glass flex flex-col gap-4 rounded-3xl p-5 shadow-soft md:flex-row md:items-center md:justify-between">
       <div>
@@ -20,6 +25,15 @@ export function TopBar() {
             </Button>
           </Link>
         </div>
+        <Button
+          size="sm"
+          variant="outline"
+          className="w-full sm:w-auto"
+          onClick={toggleTheme}
+          aria-pressed={isLight}
+        >
+          {themeLabel}
+        </Button>
       </div>
     </div>
   );

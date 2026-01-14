@@ -4,9 +4,46 @@
 
 :root {
   color-scheme: dark;
-  --bg-top: #101211;
-  --bg-bottom: #0b0d0c;
-  --accent-glow: rgba(240, 138, 75, 0.18);
+  --ink: 247 242 233;
+  --dune: 18 20 19;
+  --ember: 240 138 75;
+  --sea: 74 162 173;
+  --moss: 141 159 122;
+  --stone: 43 47 45;
+  --soot: 10 12 11;
+  --haze: 24 27 26;
+  --bg-top: 16 18 17;
+  --bg-bottom: 11 13 12;
+  --accent-glow: 240 138 75;
+  --glass-bg: 16 18 17;
+  --glass-border: 247 242 233;
+  --surface-bg: 18 20 19;
+  --surface-border: 247 242 233;
+  --shadow-soft: 0 24px 60px -32px rgba(16, 19, 17, 0.45);
+  --shadow-glow: 0 0 0 1px rgba(230, 127, 74, 0.35),
+    0 12px 30px -20px rgba(230, 127, 74, 0.8);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --ink: 28 29 27;
+  --dune: 245 240 232;
+  --ember: 217 116 63;
+  --sea: 45 121 131;
+  --moss: 111 129 96;
+  --stone: 214 208 198;
+  --soot: 24 26 24;
+  --haze: 255 255 255;
+  --bg-top: 255 252 246;
+  --bg-bottom: 236 229 219;
+  --accent-glow: 240 138 75;
+  --glass-bg: 255 255 255;
+  --glass-border: 28 29 27;
+  --surface-bg: 248 244 238;
+  --surface-border: 28 29 27;
+  --shadow-soft: 0 24px 60px -32px rgba(17, 19, 18, 0.18);
+  --shadow-glow: 0 0 0 1px rgba(216, 116, 63, 0.28),
+    0 12px 30px -20px rgba(216, 116, 63, 0.55);
 }
 
 * {
@@ -17,10 +54,10 @@ body {
   margin: 0;
   min-height: 100vh;
   font-family: "Space Grotesk", system-ui, sans-serif;
-  background: radial-gradient(circle at 15% 10%, rgba(74, 162, 173, 0.18) 0%, transparent 55%),
-    radial-gradient(circle at 80% 15%, var(--accent-glow) 0%, transparent 45%),
-    linear-gradient(160deg, var(--bg-top), var(--bg-bottom));
-  color: #f7f2e9;
+  background: radial-gradient(circle at 15% 10%, rgb(var(--sea) / 0.18) 0%, transparent 55%),
+    radial-gradient(circle at 80% 15%, rgb(var(--accent-glow) / 0.2) 0%, transparent 45%),
+    linear-gradient(160deg, rgb(var(--bg-top)), rgb(var(--bg-bottom)));
+  color: rgb(var(--ink));
 }
 
 #root {
@@ -42,14 +79,14 @@ body {
 
 @layer utilities {
   .glass {
-    background: rgba(16, 18, 17, 0.75);
+    background: rgb(var(--glass-bg) / 0.75);
     backdrop-filter: blur(12px);
-    border: 1px solid rgba(247, 242, 233, 0.08);
+    border: 1px solid rgb(var(--glass-border) / 0.08);
   }
 
   .surface {
-    background: rgba(18, 20, 19, 0.88);
-    border: 1px solid rgba(247, 242, 233, 0.08);
+    background: rgb(var(--surface-bg) / 0.88);
+    border: 1px solid rgb(var(--surface-border) / 0.08);
   }
 
   .text-balance {
