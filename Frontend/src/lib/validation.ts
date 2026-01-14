@@ -105,7 +105,7 @@ export const clienteFormSchema = z.object({
   nombre: z.string().min(2, "Nombre requerido"),
   dni: z
     .string()
-    .refine((value) => /^[0-9]{6,9}$/.test(value), "DNI invalido"),
+    .refine((value) => /^[0-9]{6,11}$/.test(value), "DNI o CUIL invalido"),
   telefono_contacto: z.string().optional(),
   email: z
     .string()

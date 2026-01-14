@@ -6,7 +6,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 class ClienteCreate(BaseModel):
     nombre: str = Field(..., min_length=1)
-    dni: str = Field(..., min_length=6, max_length=9, pattern=r"^\d+$")
+    dni: str = Field(..., min_length=6, max_length=11, pattern=r"^\d+$")
     telefono_contacto: Optional[str] = None
     email: Optional[str] = None
     notas: Optional[str] = None

@@ -62,8 +62,8 @@ export function NuevoCliente() {
 
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <label className="text-sm font-semibold">DNI</label>
-              <Input placeholder="12345678" {...register("dni")} />
+              <label className="text-sm font-semibold">DNI / CUIL</label>
+              <Input placeholder="12345678 o 20123456789" {...register("dni")} />
               {errors.dni ? (
                 <p className="mt-1 text-xs text-ember">{errors.dni.message}</p>
               ) : null}

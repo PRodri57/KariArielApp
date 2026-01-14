@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/Textarea";
 import { useClientes } from "@/hooks/clientes";
 import { useCreateOrden } from "@/hooks/ordenes";
 import { useCreateTelefono, useTelefonos } from "@/hooks/telefonos";
+import type { Cliente } from "@/lib/types";
 import { ordenFormSchema, type OrdenFormValues } from "@/lib/validation";
 
 const proveedores = [
@@ -29,11 +30,17 @@ const proveedores = [
   "Otros..."
 ];
 
+const SEARCH_DELAY_MS = 350;
+const SEARCH_MIN_LENGTH = 2;
+
 export function NuevaOrden() {
   const [numeroCreado, setNumeroCreado] = useState<number | null>(null);
   const [errorMensaje, setErrorMensaje] = useState<string | null>(null);
-  const [dniBusqueda, setDniBusqueda] = useState("");
-  const [dniEncontrado, setDniEncontrado] = useState<null | "encontrado" | "no-encontrado">(null);
+  const [busquedaCliente, setBusquedaCliente] = useState("");
+  const [resultadoBusqueda, setResultadoBusqueda] = useState<
+    null | "encontrado" | "no-encontrado" | "multiple"
+  >(null);
+  const [clientesCoincidentes, setClientesCoincidentes] = useState<Cliente[]>([]);
   const [mostrarTelefonoRapido, setMostrarTelefonoRapido] = useState(false);
   const [proveedorSeleccionado, setProveedorSeleccionado] = useState("");
   const [searchParams] = useSearchParams();
@@ -96,9 +103,10 @@ export function NuevaOrden() {
     if (!clienteId) return;
     setValue("cliente_id", String(clienteId));
     const cliente = clientes.find((item) => item.id === clienteId);
-    if (cliente?.dni) {
-      setDniBusqueda(cliente.dni);
-      setDniEncontrado("encontrado");
+    if (cliente) {
+      setBusquedaCliente(cliente.dni || cliente.nombre);
+      setResultadoBusqueda("encontrado");
+      setClientesCoincidentes([]);
     }
   }, [searchParams, setValue, clientes]);
 
@@ -114,6 +122,48 @@ export function NuevaOrden() {
       setValue("telefono_id", "");
     }
   }, [clienteSeleccionado, telefonoSeleccionado, telefonosFiltrados, setValue]);
+
+  useEffect(() => {
+    if (resultadoBusqueda === "encontrado") {
+      return;
+    }
+
+    const term = busquedaCliente.trim();
+    if (!term || term.length < SEARCH_MIN_LENGTH) {
+      if (clientesCoincidentes.length > 0) {
+        setClientesCoincidentes([]);
+      }
+      if (resultadoBusqueda !== null) {
+        setResultadoBusqueda(null);
+      }
+      return;
+    }
+
+    const normalizedTerm = term.toLowerCase();
+    const timeoutId = window.setTimeout(() => {
+      const matches = clientes.filter((cliente) => {
+        const nombre = cliente.nombre.toLowerCase();
+        const dni = (cliente.dni ?? "").toLowerCase();
+        return nombre.includes(normalizedTerm) || dni.includes(normalizedTerm);
+      });
+
+      if (matches.length === 1) {
+        seleccionarCliente(matches[0]);
+        return;
+      }
+
+      if (matches.length > 1) {
+        setClientesCoincidentes(matches);
+        setResultadoBusqueda("multiple");
+        return;
+      }
+
+      setClientesCoincidentes([]);
+      setResultadoBusqueda("no-encontrado");
+    }, SEARCH_DELAY_MS);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [busquedaCliente, clientes]);
 
   const onSubmit = async (values: OrdenFormValues) => {
     setErrorMensaje(null);
@@ -174,19 +224,40 @@ export function NuevaOrden() {
     }
   };
 
-  const buscarPorDni = () => {
-    const dni = dniBusqueda.trim();
-    if (!dni) {
-      setDniEncontrado(null);
+  const seleccionarCliente = (cliente: Cliente) => {
+    setValue("cliente_id", String(cliente.id));
+    setBusquedaCliente(cliente.dni || cliente.nombre);
+    setResultadoBusqueda("encontrado");
+    setClientesCoincidentes([]);
+  };
+
+  const buscarCliente = () => {
+    const term = busquedaCliente.trim().toLowerCase();
+    if (!term) {
+      setResultadoBusqueda(null);
+      setClientesCoincidentes([]);
       return;
     }
-    const cliente = clientes.find((item) => item.dni === dni);
-    if (cliente) {
-      setValue("cliente_id", String(cliente.id));
-      setDniEncontrado("encontrado");
-    } else {
-      setDniEncontrado("no-encontrado");
+
+    const matches = clientes.filter((cliente) => {
+      const nombre = cliente.nombre.toLowerCase();
+      const dni = (cliente.dni ?? "").toLowerCase();
+      return nombre.includes(term) || dni.includes(term);
+    });
+
+    if (matches.length === 1) {
+      seleccionarCliente(matches[0]);
+      return;
     }
+
+    if (matches.length > 1) {
+      setClientesCoincidentes(matches);
+      setResultadoBusqueda("multiple");
+      return;
+    }
+
+    setClientesCoincidentes([]);
+    setResultadoBusqueda("no-encontrado");
   };
 
   const agregarTelefonoRapido = async () => {
@@ -231,27 +302,54 @@ export function NuevaOrden() {
             </div>
           ) : null}
           <div className="rounded-2xl border border-ink/10 bg-ink/5 px-4 py-3">
-            <label className="text-sm font-semibold">Buscar cliente por DNI</label>
+            <label className="text-sm font-semibold">
+              Buscar cliente por DNI, CUIL o nombre
+            </label>
             <div className="mt-2 flex flex-col gap-2 md:flex-row md:items-center">
               <Input
-                placeholder="Ingresar DNI"
-                value={dniBusqueda}
+                placeholder="Ingresar DNI, CUIL o nombre"
+                value={busquedaCliente}
                 onChange={(event) => {
-                  setDniBusqueda(event.target.value);
-                  setDniEncontrado(null);
+                  setBusquedaCliente(event.target.value);
+                  setResultadoBusqueda(null);
+                  setClientesCoincidentes([]);
                 }}
-                onBlur={buscarPorDni}
+                onBlur={buscarCliente}
               />
-              <Button type="button" variant="outline" onClick={buscarPorDni}>
+              <Button type="button" variant="outline" onClick={buscarCliente}>
                 Buscar
               </Button>
             </div>
-            {dniEncontrado === "encontrado" ? (
+            {resultadoBusqueda === "encontrado" ? (
               <p className="mt-2 text-xs text-moss">Cliente encontrado y seleccionado.</p>
             ) : null}
-            {dniEncontrado === "no-encontrado" ? (
+            {resultadoBusqueda === "multiple" ? (
+              <div className="mt-2">
+                <p className="text-xs text-ink/60">
+                  Se encontraron varios clientes. Selecciona uno:
+                </p>
+                <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                  {clientesCoincidentes.map((cliente) => (
+                    <Button
+                      key={cliente.id}
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="w-full justify-between text-left"
+                      onClick={() => seleccionarCliente(cliente)}
+                    >
+                      <span className="truncate">{cliente.nombre}</span>
+                      <span className="text-xs text-ink/60">{cliente.dni}</span>
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+            {resultadoBusqueda === "no-encontrado" ? (
               <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-ember">
-                <span>No existe cliente con ese DNI. Queres crear uno nuevo?</span>
+                <span>
+                  No existe cliente con ese DNI, CUIL o nombre. Queres crear uno nuevo?
+                </span>
                 <Link to="/clientes/nuevo" className="underline">
                   Crear cliente
                 </Link>
