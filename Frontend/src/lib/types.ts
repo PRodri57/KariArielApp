@@ -105,6 +105,15 @@ export type ClienteCreatePayload = {
   notas?: string;
 };
 
+export type ClienteUpdatePayload = {
+  id: number;
+  nombre: string;
+  dni: string;
+  telefono_contacto?: string | null;
+  email?: string | null;
+  notas?: string | null;
+};
+
 export type ClienteCreateResponse = {
   id: number;
 };

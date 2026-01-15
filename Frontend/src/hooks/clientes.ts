@@ -1,6 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createCliente, deleteCliente, getCliente, listClientes } from "@/lib/api";
-import type { ClienteCreatePayload } from "@/lib/types";
+import {
+  createCliente,
+  deleteCliente,
+  getCliente,
+  listClientes,
+  updateCliente
+} from "@/lib/api";
+import type { ClienteCreatePayload, ClienteUpdatePayload } from "@/lib/types";
 
 export function useClientes() {
   return useQuery({
@@ -37,6 +43,18 @@ export function useDeleteCliente() {
       client.invalidateQueries({ queryKey: ["clientes"] });
       client.removeQueries({ queryKey: ["clientes", id] });
       client.invalidateQueries({ queryKey: ["telefonos"] });
+    }
+  });
+}
+
+export function useUpdateCliente() {
+  const client = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: ClienteUpdatePayload) => updateCliente(payload),
+    onSuccess: (_data, payload) => {
+      client.invalidateQueries({ queryKey: ["clientes"] });
+      client.invalidateQueries({ queryKey: ["clientes", payload.id] });
     }
   });
 }

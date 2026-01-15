@@ -30,3 +30,11 @@ class ClienteOut(BaseModel):
     )
 
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)
+
+
+class ClienteUpdate(BaseModel):
+    nombre: str = Field(..., min_length=1)
+    dni: str = Field(..., min_length=6, max_length=11, pattern=r"^\d+$")
+    telefono_contacto: Optional[str] = None
+    email: Optional[str] = None
+    notas: Optional[str] = None

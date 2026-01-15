@@ -2,6 +2,7 @@ import type {
   Cliente,
   ClienteCreatePayload,
   ClienteCreateResponse,
+  ClienteUpdatePayload,
   Orden,
   OrdenCreatePayload,
   OrdenCreateResponse,
@@ -244,6 +245,40 @@ export async function createCliente(
   return fetchJson<ClienteCreateResponse>("/clientes", {
     method: "POST",
     body: JSON.stringify(payload)
+  });
+}
+
+export async function updateCliente(
+  payload: ClienteUpdatePayload
+): Promise<Cliente> {
+  if (USE_MOCKS) {
+    await wait(300);
+    const index = mockClientes.findIndex((item) => item.id === payload.id);
+    if (index === -1) {
+      throw new Error("Cliente no encontrado");
+    }
+    const dniDuplicado = mockClientes.some(
+      (item) => item.id !== payload.id && item.dni === payload.dni
+    );
+    if (dniDuplicado) {
+      throw new Error("Cliente ya existe.");
+    }
+    const actualizado: Cliente = {
+      ...mockClientes[index],
+      nombre: payload.nombre,
+      dni: payload.dni,
+      telefono_contacto: payload.telefono_contacto ?? null,
+      email: payload.email ?? null,
+      notas: payload.notas ?? null
+    };
+    mockClientes[index] = actualizado;
+    return actualizado;
+  }
+
+  const { id, ...body } = payload;
+  return fetchJson<Cliente>(`/clientes/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(body)
   });
 }
 

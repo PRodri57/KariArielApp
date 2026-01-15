@@ -8,10 +8,15 @@ import { Card, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 import { StatusBadge } from "@/components/StatusBadge";
-import { useCliente, useDeleteCliente } from "@/hooks/clientes";
+import { useCliente, useDeleteCliente, useUpdateCliente } from "@/hooks/clientes";
 import { useOrdenes } from "@/hooks/ordenes";
 import { useCreateTelefono, useTelefonos, useUpdateTelefono } from "@/hooks/telefonos";
-import { telefonoFormSchema, type TelefonoFormValues } from "@/lib/validation";
+import {
+  clienteFormSchema,
+  telefonoFormSchema,
+  type ClienteFormValues,
+  type TelefonoFormValues
+} from "@/lib/validation";
 
 export function ClienteDetalle() {
   const params = useParams();
@@ -20,6 +25,7 @@ export function ClienteDetalle() {
 
   const { data: cliente, isLoading } = useCliente(idValido ? clienteId : undefined);
   const deleteCliente = useDeleteCliente();
+  const updateCliente = useUpdateCliente();
   const navigate = useNavigate();
   const { data: telefonos = [], isLoading: telefonosLoading } = useTelefonos(
     idValido ? clienteId : undefined
@@ -59,6 +65,23 @@ export function ClienteDetalle() {
     }
   });
 
+  const [editandoCliente, setEditandoCliente] = useState(false);
+  const {
+    register: registerCliente,
+    handleSubmit: handleSubmitCliente,
+    formState: { errors: clienteErrors },
+    reset: resetCliente
+  } = useForm<ClienteFormValues>({
+    resolver: zodResolver(clienteFormSchema),
+    defaultValues: {
+      nombre: "",
+      dni: "",
+      telefono_contacto: "",
+      email: "",
+      notas: ""
+    }
+  });
+
   useEffect(() => {
     if (idValido) {
       setValue("cliente_id", String(clienteId));
@@ -81,6 +104,41 @@ export function ClienteDetalle() {
       modelo: "",
       notas: ""
     });
+  };
+
+  const iniciarEdicionCliente = () => {
+    if (!cliente) return;
+    resetCliente({
+      nombre: cliente.nombre,
+      dni: cliente.dni ?? "",
+      telefono_contacto: cliente.telefono_contacto ?? "",
+      email: cliente.email ?? "",
+      notas: cliente.notas ?? ""
+    });
+    setEditandoCliente(true);
+  };
+
+  const cancelarEdicionCliente = () => {
+    setEditandoCliente(false);
+  };
+
+  const onSubmitCliente = async (values: ClienteFormValues) => {
+    if (!cliente) return;
+    try {
+      await updateCliente.mutateAsync({
+        id: cliente.id,
+        nombre: values.nombre.trim(),
+        dni: values.dni.trim(),
+        telefono_contacto: values.telefono_contacto?.trim() || null,
+        email: values.email?.trim() || null,
+        notas: values.notas?.trim() || null
+      });
+      setEditandoCliente(false);
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "No se pudo editar el cliente.";
+      window.alert(message);
+    }
   };
 
   const [editandoTelefono, setEditandoTelefono] = useState<number | null>(null);
@@ -153,6 +211,16 @@ export function ClienteDetalle() {
           <Link to="/clientes">
             <Button variant="outline">Volver a clientes</Button>
           </Link>
+          {!editandoCliente ? (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={iniciarEdicionCliente}
+              disabled={!cliente}
+            >
+              Editar cliente
+            </Button>
+          ) : null}
           <Button
             type="button"
             variant="outline"
@@ -184,37 +252,102 @@ export function ClienteDetalle() {
               <CardHeader>
                 <CardTitle>Datos</CardTitle>
               </CardHeader>
-              <div className="grid gap-4 text-sm text-ink/70">
-                <div className="flex items-center justify-between">
-                  <span>DNI</span>
-                  <span className="font-semibold text-ink">
-                    {cliente.dni ?? "-"}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span>Contacto</span>
-                  <span className="font-semibold text-ink">
-                    {cliente.telefono_contacto ?? "-"}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span>Email</span>
-                  <span className="font-semibold text-ink">
-                    {cliente.email ?? "-"}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span>Alta</span>
-                  <span className="font-semibold text-ink">
-                    {format(parseISO(cliente.creado_en), "dd MMM yyyy")}
-                  </span>
-                </div>
-                {cliente.notas ? (
-                  <div className="rounded-2xl border border-ink/10 bg-ink/5 px-4 py-3 text-sm text-ink/70">
-                    {cliente.notas}
+              {editandoCliente ? (
+                <form
+                  onSubmit={handleSubmitCliente(onSubmitCliente)}
+                  className="grid gap-4 text-sm text-ink/70"
+                >
+                  <div>
+                    <label className="text-xs font-semibold">Nombre y apellido</label>
+                    <Input placeholder="Juan Perez" {...registerCliente("nombre")} />
+                    {clienteErrors.nombre ? (
+                      <p className="mt-1 text-xs text-ember">
+                        {clienteErrors.nombre.message}
+                      </p>
+                    ) : null}
                   </div>
-                ) : null}
-              </div>
+                  <div>
+                    <label className="text-xs font-semibold">DNI / CUIL</label>
+                    <Input placeholder="12345678 o 20123456789" {...registerCliente("dni")} />
+                    {clienteErrors.dni ? (
+                      <p className="mt-1 text-xs text-ember">
+                        {clienteErrors.dni.message}
+                      </p>
+                    ) : null}
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold">Telefono contacto</label>
+                    <Input
+                      placeholder="11 5555-1234"
+                      {...registerCliente("telefono_contacto")}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold">Email</label>
+                    <Input
+                      placeholder="cliente@email.com"
+                      {...registerCliente("email")}
+                    />
+                    {clienteErrors.email ? (
+                      <p className="mt-1 text-xs text-ember">
+                        {clienteErrors.email.message}
+                      </p>
+                    ) : null}
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold">Notas</label>
+                    <Textarea
+                      placeholder="Preferencias, horarios..."
+                      {...registerCliente("notas")}
+                    />
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Button type="submit" size="sm" disabled={updateCliente.isPending}>
+                      {updateCliente.isPending ? "Guardando..." : "Guardar cambios"}
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="ghost"
+                      onClick={cancelarEdicionCliente}
+                    >
+                      Cancelar
+                    </Button>
+                  </div>
+                </form>
+              ) : (
+                <div className="grid gap-4 text-sm text-ink/70">
+                  <div className="flex items-center justify-between">
+                    <span>DNI / CUIL</span>
+                    <span className="font-semibold text-ink">
+                      {cliente.dni ?? "-"}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Contacto</span>
+                    <span className="font-semibold text-ink">
+                      {cliente.telefono_contacto ?? "-"}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Email</span>
+                    <span className="font-semibold text-ink">
+                      {cliente.email ?? "-"}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Alta</span>
+                    <span className="font-semibold text-ink">
+                      {format(parseISO(cliente.creado_en), "dd MMM yyyy")}
+                    </span>
+                  </div>
+                  {cliente.notas ? (
+                    <div className="rounded-2xl border border-ink/10 bg-ink/5 px-4 py-3 text-sm text-ink/70">
+                      {cliente.notas}
+                    </div>
+                  ) : null}
+                </div>
+              )}
             </Card>
 
             <Card>

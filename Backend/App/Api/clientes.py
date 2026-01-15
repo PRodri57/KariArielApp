@@ -5,8 +5,10 @@ from App.Schemas.cliente import (
     ClienteCreate,
     ClienteCreateResponse,
     ClienteOut,
+    ClienteUpdate,
 )
 from App.Services.clientes import (
+    actualizar_cliente,
     crear_cliente,
     listar_clientes,
     obtener_cliente,
@@ -59,6 +61,27 @@ def crear_cliente_api(payload: ClienteCreate) -> ClienteCreateResponse:
             ) from exc
         raise
     return ClienteCreateResponse(id=cliente_id)
+
+
+@router.put("/{cliente_id}", response_model=ClienteOut)
+def actualizar_cliente_api(
+    cliente_id: int, payload: ClienteUpdate
+) -> ClienteOut:
+    try:
+        cliente = actualizar_cliente(cliente_id, payload)
+    except APIError as exc:
+        if _pg_code(exc) == "23505":
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Cliente ya existe.",
+            ) from exc
+        raise
+    if cliente is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Cliente no encontrado.",
+        )
+    return ClienteOut.model_validate(cliente)
 
 
 @router.delete("/{cliente_id}", status_code=status.HTTP_204_NO_CONTENT)

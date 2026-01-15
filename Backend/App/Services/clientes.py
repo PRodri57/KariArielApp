@@ -1,6 +1,6 @@
 from typing import Optional
 
-from App.Schemas.cliente import ClienteCreate
+from App.Schemas.cliente import ClienteCreate, ClienteUpdate
 from App.db.session import execute_supabase, get_supabase_client
 
 
@@ -62,6 +62,33 @@ def crear_cliente(payload: ClienteCreate) -> int:
     if not rows or "id" not in rows[0]:
         raise RuntimeError("No se pudo obtener id desde Supabase.")
     return rows[0]["id"]
+
+
+def actualizar_cliente(
+    cliente_id: int, payload: ClienteUpdate
+) -> Optional[dict]:
+    data = {
+        "nyape": payload.nombre,
+        "dni": payload.dni,
+        "tel_contacto": payload.telefono_contacto,
+        "email": payload.email,
+        "notas": payload.notas,
+    }
+    supabase = get_supabase_client()
+    response = execute_supabase(
+        lambda: (
+            supabase.table("clientes")
+            .update(data)
+            .eq("id", cliente_id)
+            .execute()
+        )
+    )
+    rows = response.data or []
+    if not rows:
+        return None
+    row = rows[0]
+    row["dni"] = _cast_dni(row.get("dni"))
+    return row
 
 
 def eliminar_cliente(cliente_id: int) -> bool:
