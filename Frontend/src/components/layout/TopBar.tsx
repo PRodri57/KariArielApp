@@ -1,11 +1,14 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/Button";
 import { useTheme } from "@/hooks/useTheme";
+import lightModeIcon from "../../../Icons/light-mode.svg";
+import nightModeIcon from "../../../Icons/night-mode.svg";
 
 export function TopBar() {
   const { theme, toggleTheme } = useTheme();
   const isLight = theme === "light";
   const themeLabel = isLight ? "Modo oscuro" : "Modo claro";
+  const iconSrc = isLight ? nightModeIcon : lightModeIcon;
 
   return (
     <div className="glass flex flex-col gap-4 rounded-3xl p-5 shadow-soft md:flex-row md:items-center md:justify-between">
@@ -31,8 +34,10 @@ export function TopBar() {
           className="w-full sm:w-auto"
           onClick={toggleTheme}
           aria-pressed={isLight}
+          aria-label={themeLabel}
+          title={themeLabel}
         >
-          {themeLabel}
+          <img src={iconSrc} alt="" className="h-5 w-5" />
         </Button>
       </div>
     </div>
