@@ -187,9 +187,11 @@ export function ClienteDetalle() {
   const eliminarCliente = async () => {
     if (!cliente) return;
     const confirmado = window.confirm(
-      "Eliminar cliente? Esto no se puede deshacer."
+      "¿Esta seguro que quiere eliminar el cliente?"
     );
     if (!confirmado) return;
+    const muySeguro = window.confirm("¿Muy seguro?");
+    if (!muySeguro) return;
     try {
       await deleteCliente.mutateAsync(cliente.id);
       navigate("/clientes");

@@ -220,9 +220,11 @@ export function OrdenDetalle() {
   const eliminarOrden = async () => {
     if (!orden) return;
     const confirmado = window.confirm(
-      "Eliminar orden? Esto no se puede deshacer."
+      "¿Esta seguro que quiere eliminar la orden?"
     );
     if (!confirmado) return;
+    const muySeguro = window.confirm("¿Muy seguro?");
+    if (!muySeguro) return;
     try {
       await deleteOrden.mutateAsync(orden.numero_orden);
       navigate("/ordenes");
